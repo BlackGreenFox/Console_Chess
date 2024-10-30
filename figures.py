@@ -1,59 +1,75 @@
+
+
 class Figure:
-    def __init__(self, pos, team):
+    def __init__(self, team, pos, name):
+        self.name = name
         self.pos = pos
         self.team = team
         self.alive = True
 
 
-class Rook(Figure):
-    def __init__(self, pos, team):
-        super().__init__(pos, team)
-        if team:
-            self.draw = ["@___@", " @@@ ", "d@@@b"]
+class Pawn(Figure):
+    def __init__(self, team, pos, name):
+        super().__init__(team, pos, name)
+        
+
+        if team == "White":
+            self.icon = ["  _  ", " (@) ", " d@b "]
+        elif team == "Black":
+            self.icon = ["  _  ", " ( ) ", " /_\\ "]
         else:
-            self.draw = ["[___]", " [ ] ", "/___\\"]
+            self.icon = "E"
+
+class Rook(Figure):
+    def __init__(self, team, pos, name):
+        super().__init__(team, pos, name)
+        if team == "White":
+            self.icon = ["@___@", " @@@ ", "d@@@b"]
+        elif team == "Black":
+            self.icon = ["[___]", " [ ] ", "/___\\"]
+        else:
+            self.icon = "E"
 
 
 class Knight(Figure):
-    def __init__(self, pos, team):
-        super().__init__(pos, team)
-        if team:
-            self.draw = [" %~b ", "`'dX ", " d@@b"]
-        else:
-            self.draw = [" %~\\ ", "`')( ", " <__>"]
+    def __init__(self, team, pos, name):
+        super().__init__(team, pos, name)
+        if team == "White":
+            self.icon = [" %~b ", "`'dX ", " d@@b"]
+        elif team == "Black":
+            self.icon = [" %~\\ ", "`')( ", " <__>"]
+        else :
+            self.icon = "E"
 
 
 class Bishop(Figure):
-    def __init__(self, pos, team):
-        super().__init__(pos, team)
-        if team:
-            self.draw = [" .@. ", " @@@ ", "./A\\."]
+    def __init__(self, team, pos, name):
+        super().__init__(team, pos, name)
+        if team == "White":
+            self.icon = [" .@. ", " @@@ ", "./A\\."]
+        elif team == "Black":
+            self.icon = [" .O. ", " \\ / ", " /_\\ "]
         else:
-            self.draw = [" .O. ", " \\ / ", " /_\\ "]
+            self.icon = "E"
 
 
 class Queen(Figure):
-    def __init__(self, pos, team):
-        super().__init__(pos, team)
-        if team:
-            self.draw = ["\\o*o/", " @@@ ", "d@@@b"]
+    def __init__(self, team, pos, name):
+        super().__init__(team, pos, name)
+        if team == "White":
+            self.icon = ["\\o*o/", " @@@ ", "d@@@b"]
+        elif team == "Black":
+            self.icon = ["\\o^o/", " [ ] ", "/___\\"]
         else:
-            self.draw = ["\\o^o/", " [ ] ", "/___\\"]
+            self.icon = "E"
 
 
 class King(Figure):
-    def __init__(self, pos, team):
-        super().__init__(pos, team)
-        if team:
-            self.draw = ["__+__", "`@@@'", "d@@@b"]
+    def __init__(self, team, pos, name):
+        super().__init__(team, pos, name)
+        if team == "White":
+            self.icon = ["__+__", "`@@@'", "d@@@b"]
+        elif team == "Black":
+            self.icon = ["__+__", "`. .'", "/___\\"]
         else:
-            self.draw = ["__+__", "`. .'", "/___\\"]
-
-
-class Pawn(Figure):
-    def __init__(self, pos, team):
-        super().__init__(pos, team)
-        if team:
-            self.draw = ["  _  ", " (@) ", " d@b "]
-        else:
-            self.draw = ["  _  ", " ( ) ", " /_\\ "]
+            self.icon = "E"
