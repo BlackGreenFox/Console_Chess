@@ -13,7 +13,8 @@ class Game:
         self.commands ={
             "help" : HelpCommand(),
             "select" : SelectCommand(),
-            "move" : MoveCommand()
+            "move" : MoveCommand(),
+            "sand": SandCommand()
         }
 
     def make_board(self):
@@ -109,7 +110,9 @@ def set_console_style():
         
         ctypes.windll.user32.SetWindowLongW(hwnd, GWL_STYLE, new_style)
         ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0002 | 0x0001)
-clear = lambda: os.system('cls')
+def clear():
+    os.system('cls')
+
 
 if __name__ == "__main__":
     set_console_style()

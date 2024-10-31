@@ -20,6 +20,9 @@ class Pawn(Figure):
         else:
             self.icon = "E"
 
+    def moves(self):
+        pass
+
 class Rook(Figure):
     def __init__(self, team, pos, name):
         super().__init__(team, pos, name)

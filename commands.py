@@ -1,4 +1,4 @@
-
+import time, os, random
 
 class Command:
     def __init__(self):
@@ -68,3 +68,72 @@ class MoveCommand(Command):
 
        
         return text
+
+WIDTH, HEIGHT = 75, 40
+gradient = ".:!/r(l1Z4H9W8$@"
+grid = [[' ' for _ in range(WIDTH)] for _ in range(HEIGHT)]
+
+class SandCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/particles - Simulate particles falling like sand using the current board state.\n"
+
+    def execute(self, game, *args):
+        # Create a new array of symbols using the drawn board
+        board_symbols = []
+        board_symbols.append("        A       B       C       D       E       F       G       H")
+        for y in range(8):
+            board_symbols.append("     ------- ------- ------- ------- ------- ------- ------- -------")
+            for row in range(3):
+                row_symbols = []
+                for x in range(8):
+                    figure = game.board[y][x]
+                    if figure is None:
+                        if (x + y) % 2 == 0:
+                            cell = "     "
+                        else:
+                            cell = ". . ."
+                    else:
+                        cell = figure.icon[row]
+                    row_symbols.append((x, y * 3 + row, cell))
+                board_symbols.append(row_symbols)  # Only row_symbols is a list of tuples
+        board_symbols.append("     ------- ------- ------- ------- ------- ------- ------- -------")
+        board_symbols.append("        A       B       C       D       E       F       G       H")
+
+        # Extract individual symbols for the falling animation
+        particles = []
+        for item in board_symbols:
+            if isinstance(item, list):  # Only process rows that contain tuples
+                for x, y, cell in item:
+                    for i, symbol in enumerate(cell):
+                        if symbol != ' ':
+                            particles.append((x * 7 + i, y, symbol))
+
+        def update_particles():
+            nonlocal particles
+            new_particles = []
+            for x, y, symbol in particles:
+                if y < HEIGHT - 1 and (x, y + 1, symbol) not in particles:
+                    new_particles.append((x, y + 1, symbol))
+                else:
+                    new_particles.append((x, y, symbol))
+            particles[:] = new_particles
+
+        def render():
+            os.system('cls' if os.name == 'nt' else 'clear')
+            for y in range(HEIGHT):
+                for x in range(WIDTH):
+                    grid[y][x] = ' '
+            for x, y, symbol in particles:
+                if 0 <= y < HEIGHT and 0 <= x < WIDTH:
+                    grid[y][x] = symbol
+            for row in grid:
+                print(''.join(row))
+
+        # Run the particle simulation
+        for _ in range(60):
+            update_particles()
+            render()
+            time.sleep(0.1)
+        return "Particle simulation completed.\n"
+
