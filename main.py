@@ -1,12 +1,13 @@
 from figures import *
 from commands import *
+from config import *
 import os, ctypes
 
 
 class Game:
     def __init__(self):   
         # Varibles
-        self.turn = 0
+        self.turn = 1
         self.board = self.make_board()
         self.text_print = ""
         self.selected_figure = None
@@ -18,7 +19,7 @@ class Game:
         }
 
     def make_board(self):
-        board = [[None for _ in range(8)] for _ in range(8)]
+        board = [[None for _ in range(SIZE_X)] for _ in range(SIZE_Y)]
 
         for i in range(8):
             board[1][i] = Pawn("White", (1, i), "Pawn")
@@ -68,11 +69,11 @@ class Game:
   
     def draw(self):
         print("        A       B       C       D       E       F       G       H")
-        for y in range(8):
+        for y in range(SIZE_X):
             print("     ------- ------- ------- ------- ------- ------- ------- -------")
             for row in range(3):
                 row_str = "   {}| ".format(8 - y) if row == 1 else "    | "
-                for x in range(8):
+                for x in range(SIZE_Y):
                     figure = self.board[y][x]
                     if figure is None:
                         if (x + y) % 2 == 0:

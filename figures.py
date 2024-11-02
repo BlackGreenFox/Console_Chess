@@ -1,4 +1,4 @@
-
+from config import *
 
 class Figure:
     def __init__(self, team, pos, name):
@@ -20,8 +20,36 @@ class Pawn(Figure):
         else:
             self.icon = "E"
 
-    def moves(self):
-        pass
+    def moves(self, game):
+        pos_x = self.pos[0]
+        pos_y = self.pos[1]
+
+        possible_moves = []
+
+        if self.team == "White" and pos_x + 1 < SIZE_Y:
+            if game.board[pos_x+1][pos_y] == None:
+                possible_moves.append([pos_x+1, pos_y])
+            if game.board[pos_x+1][pos_y+1] != None:
+                if game.board[pos_x+1][pos_y+1].team == "Black":
+                    possible_moves.append([pos_x+1, pos_y+1])
+            if game.board[pos_x+1][pos_y-1] != None:
+                if game.board[pos_x+1][pos_y-1].team == "Black":
+                    possible_moves.append([pos_x+1, pos_y-1])
+
+        elif self.team == "Black" and pos_x - 1 >= 0:
+            if game.board[pos_x-1][pos_y] == None:
+                possible_moves.append([pos_x-1, pos_y])
+            if game.board[pos_x-1][pos_y+1] != None:
+                if game.board[pos_x-1][pos_y+1].team == "White":
+                    possible_moves.append([pos_x-1, pos_y+1])
+            if game.board[pos_x-1][pos_y-1] != None:
+                if game.board[pos_x-1][pos_y-1].team == "White":
+                    possible_moves.append([pos_x-1, pos_y-1])
+
+
+        return possible_moves
+
+
 
 class Rook(Figure):
     def __init__(self, team, pos, name):
@@ -32,6 +60,9 @@ class Rook(Figure):
             self.icon = ["[___]", " [ ] ", "/___\\"]
         else:
             self.icon = "E"
+
+    def moves(self, game):
+        pass
 
 
 class Knight(Figure):
@@ -44,6 +75,9 @@ class Knight(Figure):
         else :
             self.icon = "E"
 
+    
+    def moves(self, game):
+        pass
 
 class Bishop(Figure):
     def __init__(self, team, pos, name):
@@ -56,6 +90,9 @@ class Bishop(Figure):
             self.icon = "E"
 
 
+    def moves(self, game):
+        pass
+
 class Queen(Figure):
     def __init__(self, team, pos, name):
         super().__init__(team, pos, name)
@@ -67,6 +104,9 @@ class Queen(Figure):
             self.icon = "E"
 
 
+    def moves(self, game):
+        pass
+
 class King(Figure):
     def __init__(self, team, pos, name):
         super().__init__(team, pos, name)
@@ -76,3 +116,7 @@ class King(Figure):
             self.icon = ["__+__", "`. .'", "/___\\"]
         else:
             self.icon = "E"
+
+
+    def moves(self, game):
+        pass

@@ -1,0 +1,2 @@
+SIZE_X = 8
+SIZE_Y = 8

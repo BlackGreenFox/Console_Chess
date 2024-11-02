@@ -1,4 +1,5 @@
 import time, os, random
+from config import *
 
 class Command:
     def __init__(self):
@@ -26,11 +27,15 @@ class SelectCommand(Command):
         self.description = "/select <cordinate> - A1 to select figure\n"
 
     def execute(self, game, arg):
+        text = "     >" 
+
+        if len(arg) < 2 or arg[0].isnumeric() or not arg[1].isnumeric() :
+            text += "Wrong argument"
+            return text
+
         x =  ord(arg[0].upper()) - ord('A')
         y = 8 - int(arg[1]) 
         
-        text = "     >" 
-
 
         if game.turn % 2 == 0 and game.board[y][x].team == "White":
             game.selected_figure = game.board[y][x]
@@ -38,10 +43,13 @@ class SelectCommand(Command):
             game.selected_figure = game.board[y][x]
         else:
             text += "Error Not Select Figure" 
+            return text
+            
 
         if game.selected_figure != None:
             text += f"Figure selected from {y} \ {x} or {arg[0]}{arg[1]}\n" 
-            text += f"     >Figure name {game.selected_figure.name}" 
+            text += "     >"
+            text += f"Figure name {game.selected_figure.name}" 
 
 
         return text
@@ -54,20 +62,53 @@ class MoveCommand(Command):
 
     def execute(self, game, arg):
         text = "     >"
-        x =  ord(arg[0].upper()) - ord('A')
+
+        if len(arg) < 2 or arg[0].isnumeric() or not arg[1].isnumeric() :
+            text += "Wrong argument"
+            return text
+        
+        x = ord(arg[0].upper()) - ord('A')
         y = 8 - int(arg[1]) 
 
         if game.selected_figure == None:
             text += "Please select figure first"
             return text
         
-        game.board[y][x] = game.selected_figure
-        game.board[game.selected_figure.pos[0]][game.selected_figure.pos[1]] = None
-        text += f"Figure moved to {game.selected_figure.pos[0]}, {game.selected_figure.pos[1]}"
-        game.selected_figure.pos = (y,x)
+
+        posibale_moves = game.selected_figure.moves(game)
+    
+        for move in posibale_moves:
+            if y == move[0] and x == move[1]:
+                game.board[y][x] = game.selected_figure
+                game.board[game.selected_figure.pos[0]][game.selected_figure.pos[1]] = None
+                text += f"Figure moved to {game.selected_figure.pos[0]}, {game.selected_figure.pos[1]}"
+                game.selected_figure.pos = (y,x)
+                return text
+            else:
+                text += "Cant move"
 
        
         return text
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 WIDTH, HEIGHT = 75, 40
 gradient = ".:!/r(l1Z4H9W8$@"
