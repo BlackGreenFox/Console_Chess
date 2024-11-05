@@ -7,6 +7,7 @@ import os, ctypes
 class Game:
     def __init__(self):   
         # Varibles
+        self.processes = []
         self.turn = 1
         self.board = self.make_board()
         self.text_print = ""
@@ -15,36 +16,61 @@ class Game:
             "help" : HelpCommand(),
             "select" : SelectCommand(),
             "move" : MoveCommand(),
-            "sand": SandCommand()
+            "sand": SandCommand(),
+            "inv" : InventoryCommand()
         }
 
     def make_board(self):
-        board = [[None for _ in range(SIZE_X)] for _ in range(SIZE_Y)]
+        board = [[None for _ in range(SIZE_Y)] for _ in range(SIZE_X)]
 
-        for i in range(8):
-            board[1][i] = Pawn("White", (1, i), "Pawn")
-            board[6][i] = Pawn("Black", (6, i), "Pawn")
+        if GAMEMODE == "Classic":
+            for i in range(8):
+                board[1][i] = Pawn("White", (1, i), "Pawn")
+                board[6][i] = Pawn("Black", (6, i), "Pawn")
 
-        board[0][0] = Rook("White", (0, 0), "Rook")
-        board[0][7] = Rook("White", (0, 7), "Rook")
-        board[7][0] = Rook("Black", (7, 0), "Rook")
-        board[7][7] = Rook("Black", (7, 7), "Rook")
+            board[0][0] = Rook("White", (0, 0), "Rook")
+            board[0][7] = Rook("White", (0, 7), "Rook")
+            board[7][0] = Rook("Black", (7, 0), "Rook")
+            board[7][7] = Rook("Black", (7, 7), "Rook")
 
-        board[0][1] = Knight("White", (0, 1), "Knight")
-        board[0][6] = Knight("White", (0, 6), "Knight")
-        board[7][1] = Knight("Black", (7, 1), "Knight")
-        board[7][6] = Knight("Black", (7, 6), "Knight")
+            board[0][1] = Knight("White", (0, 1), "Knight")
+            board[0][6] = Knight("White", (0, 6), "Knight")
+            board[7][1] = Knight("Black", (7, 1), "Knight")
+            board[7][6] = Knight("Black", (7, 6), "Knight")
 
-        board[0][2] = Bishop("White", (0, 2), "Bishop")
-        board[0][5] = Bishop("White", (0, 5), "Bishop")
-        board[7][2] = Bishop("Black", (7, 2), "Bishop")
-        board[7][5] = Bishop("Black", (7, 5), "Bishop")
+            board[0][2] = Bishop("White", (0, 2), "Bishop")
+            board[0][5] = Bishop("White", (0, 5), "Bishop")
+            board[7][2] = Bishop("Black", (7, 2), "Bishop")
+            board[7][5] = Bishop("Black", (7, 5), "Bishop")
 
-        board[0][3] = Queen("White", (0, 3), "Queen")
-        board[0][4] = King("White", (0, 4), "King")
-        board[7][3] = Queen("Black", (7, 3), "Queen")
-        board[7][4] = King("Black", (7, 4), "King")
+            board[0][3] = Queen("White", (0, 3), "Queen")
+            board[0][4] = King("White", (0, 4), "King")
+            board[7][3] = Queen("Black", (7, 3), "Queen")
+            board[7][4] = King("Black", (7, 4), "King")
+        elif GAMEMODE == "War":
+            for i in range(8):
+                board[1][i] = Pawn("White", (1, i), "Pawn", 3)
+                board[6][i] = Pawn("Black", (6, i), "Pawn", 3)
 
+            board[0][0] = Rook("White", (0, 0), "Rook", 10)
+            board[0][7] = Rook("White", (0, 7), "Rook", 10)
+            board[7][0] = Rook("Black", (7, 0), "Rook", 10)
+            board[7][7] = Rook("Black", (7, 7), "Rook", 10)
+
+            board[0][1] = Knight("White", (0, 1), "Knight",5)
+            board[0][6] = Knight("White", (0, 6), "Knight",5)
+            board[7][1] = Knight("Black", (7, 1), "Knight",5)
+            board[7][6] = Knight("Black", (7, 6), "Knight",5)
+
+            board[0][2] = Bishop("White", (0, 2), "Bishop",4)
+            board[0][5] = Bishop("White", (0, 5), "Bishop",4)
+            board[7][2] = Bishop("Black", (7, 2), "Bishop",4)
+            board[7][5] = Bishop("Black", (7, 5), "Bishop",4)
+
+            board[0][3] = Queen("White", (0, 3), "Queen", 2)
+            board[0][4] = King("White", (0, 4), "King", 1)
+            board[7][3] = Queen("Black", (7, 3), "Queen", 2)
+            board[7][4] = King("Black", (7, 4), "King", 1)
         return board
 
     def event(self):
@@ -68,13 +94,31 @@ class Game:
  
   
     def draw(self):
-        print("        A       B       C       D       E       F       G       H")
-        for y in range(SIZE_X):
-            print("     ------- ------- ------- ------- ------- ------- ------- -------")
+        cord_y = "ABCDEFGHIJKLMNOP"
+        # ------------- 
+        border_str_y = " "
+        for i in range(SIZE_Y):
+                border_str_y += "       "
+                border_str_y += cord_y[i]
+        print(border_str_y)
+        # ------------- 
+        for x in range(SIZE_X):
+            # ------------- 
+            border_str_y2 = "    "
+            for _ in range(SIZE_Y):
+                border_str_y2 += " "
+                border_str_y2 += "-------"
+            print(border_str_y2)
+           # ------------- 
             for row in range(3):
-                row_str = "   {}| ".format(8 - y) if row == 1 else "    | "
-                for x in range(SIZE_Y):
-                    figure = self.board[y][x]
+                row_str = ""
+                if SIZE_X - x > 9:
+                    row_str = " {} | ".format(SIZE_X - x) if row == 1 else "    | "
+                else:
+                    row_str = "  {} | ".format(SIZE_X - x) if row == 1 else "    | "
+                
+                for y in range(SIZE_Y):
+                    figure = self.board[x][y]
                     if figure is None:
                         if (x + y) % 2 == 0:
                             cell = "     "
@@ -84,10 +128,22 @@ class Game:
                         cell = figure.icon[row]
                     row_str += f"{cell} | "
                 if row == 1:
-                    row_str += f"{8 - y}"
+                    row_str += f"{SIZE_X - x}"
                 print(row_str)
-        print("     ------- ------- ------- ------- ------- ------- ------- -------")
-        print("        A       B       C       D       E       F       G       H")
+        # ------------- 
+        border_str_y2 = "    "
+        for _ in range(SIZE_X):
+            border_str_y2 += " "
+            border_str_y2 += "-------"
+        print(border_str_y2)
+        # ------------- 
+        # ------------- 
+        border_str_y = " "
+        for i in range(SIZE_Y):
+                border_str_y += "       "
+                border_str_y += cord_y[i]
+        print(border_str_y)
+        # ------------- 
 
 
 
@@ -101,7 +157,7 @@ class Game:
 
 
 def set_console_style():
-    os.system(f'mode con: cols={75} lines={40}')
+    os.system(f'mode con: cols={8*SIZE_Y+ 9} lines={5*SIZE_X}')
     hwnd = ctypes.windll.kernel32.GetConsoleWindow()
     if hwnd != 0:
         GWL_STYLE = -16

@@ -20,6 +20,22 @@ class HelpCommand(Command):
             text += ("     > " + command.description)
         return text
 
+class InventoryCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/inv - Looks in inventory\n"
+
+    def execute(self, arg):
+        text = ""
+
+        if arg.selected_figure == None:
+            text += "Please select figure first"
+            return text
+    
+        for item in arg.selected_figure.inventory:
+            text += ("     > " + item.name)
+        return text
+    
 
 class SelectCommand(Command):
     def __init__(self):

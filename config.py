@@ -1,2 +1,17 @@
+from items import *
+
 SIZE_X = 8
 SIZE_Y = 8
+
+AVIABLE_ITEMS = [
+    Medkit("Small Medkit", "Classic medkit regen 1 hp", 1),
+    Medkit("Medium Medkit", "Classic medkit regen 2 hp", 2),
+    Medkit("Large Medkit", "Classic medkit regen 3 hp", 3)
+]
+
+AVIABLE_GAMEMODES = [
+    "Classic",
+    "War"
+]
+
+GAMEMODE = AVIABLE_GAMEMODES[1]

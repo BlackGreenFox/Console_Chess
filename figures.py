@@ -1,16 +1,31 @@
 from config import *
+import random
 
 class Figure:
-    def __init__(self, team, pos, name):
-        self.name = name
+    def __init__(self, team, pos, name, health = 1, selectable = True):
+        self.selectable = selectable
+        self.alive = True
         self.pos = pos
         self.team = team
-        self.alive = True
+
+        self.name = name
+        self.health = health
+
+        self.inventory = []
+
+        if GAMEMODE == "War":
+            for i in range(random.randint(1, 5)):
+                rand_item = random.choice(AVIABLE_ITEMS)
+                self.inventory.append(rand_item)
+
+
+
+       
 
 
 class Pawn(Figure):
-    def __init__(self, team, pos, name):
-        super().__init__(team, pos, name)
+    def __init__(self, team, pos, name,  health = 1):
+        super().__init__(team, pos, name,  health)
         
 
         if team == "White":
@@ -52,8 +67,8 @@ class Pawn(Figure):
 
 
 class Rook(Figure):
-    def __init__(self, team, pos, name):
-        super().__init__(team, pos, name)
+    def __init__(self, team, pos, name,  health =1):
+        super().__init__(team, pos, name,  health)
         if team == "White":
             self.icon = ["@___@", " @@@ ", "d@@@b"]
         elif team == "Black":
@@ -66,8 +81,8 @@ class Rook(Figure):
 
 
 class Knight(Figure):
-    def __init__(self, team, pos, name):
-        super().__init__(team, pos, name)
+    def __init__(self, team, pos, name,  health = 1):
+        super().__init__(team, pos, name,  health)
         if team == "White":
             self.icon = [" %~b ", "`'dX ", " d@@b"]
         elif team == "Black":
@@ -80,8 +95,8 @@ class Knight(Figure):
         pass
 
 class Bishop(Figure):
-    def __init__(self, team, pos, name):
-        super().__init__(team, pos, name)
+    def __init__(self, team, pos, name,  health = 1):
+        super().__init__(team, pos, name,  health)
         if team == "White":
             self.icon = [" .@. ", " @@@ ", "./A\\."]
         elif team == "Black":
@@ -94,8 +109,8 @@ class Bishop(Figure):
         pass
 
 class Queen(Figure):
-    def __init__(self, team, pos, name):
-        super().__init__(team, pos, name)
+    def __init__(self, team, pos, name,  health = 1):
+        super().__init__(team, pos, name,  health)
         if team == "White":
             self.icon = ["\\o*o/", " @@@ ", "d@@@b"]
         elif team == "Black":
@@ -108,8 +123,8 @@ class Queen(Figure):
         pass
 
 class King(Figure):
-    def __init__(self, team, pos, name):
-        super().__init__(team, pos, name)
+    def __init__(self, team, pos, name,  health = 1):
+        super().__init__(team, pos, name,  health)
         if team == "White":
             self.icon = ["__+__", "`@@@'", "d@@@b"]
         elif team == "Black":
