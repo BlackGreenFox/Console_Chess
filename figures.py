@@ -14,19 +14,26 @@ class Figure:
         self.inventory = []
 
         if GAMEMODE == "War":
-            for i in range(random.randint(1, 5)):
+            for _ in range(random.randint(1, 5)):
                 rand_item = random.choice(AVIABLE_ITEMS)
                 self.inventory.append(rand_item)
 
 
 
-       
+class Baricade(Figure):
+    def __init__(self, team, pos, name,  health = 1):  
+        super().__init__(team, pos, name,  health)  
+        
+        
+        self.icon = ["|ooo|", "|XXX|", "|XXX|"]
+          
 
 
 class Pawn(Figure):
     def __init__(self, team, pos, name,  health = 1):
         super().__init__(team, pos, name,  health)
-        
+        self.first_turn = True
+
 
         if team == "White":
             self.icon = ["  _  ", " (@) ", " d@b "]
@@ -44,6 +51,8 @@ class Pawn(Figure):
         if self.team == "White" and pos_x + 1 < SIZE_Y:
             if game.board[pos_x+1][pos_y] == None:
                 possible_moves.append([pos_x+1, pos_y])
+            if game.board[pos_x+2][pos_y] == None and self.first_turn:
+                possible_moves.append([pos_x+2, pos_y])
             if game.board[pos_x+1][pos_y+1] != None:
                 if game.board[pos_x+1][pos_y+1].team == "Black":
                     possible_moves.append([pos_x+1, pos_y+1])
@@ -54,6 +63,8 @@ class Pawn(Figure):
         elif self.team == "Black" and pos_x - 1 >= 0:
             if game.board[pos_x-1][pos_y] == None:
                 possible_moves.append([pos_x-1, pos_y])
+            if game.board[pos_x-2][pos_y] == None and self.first_turn:
+                possible_moves.append([pos_x-2, pos_y])
             if game.board[pos_x-1][pos_y+1] != None:
                 if game.board[pos_x-1][pos_y+1].team == "White":
                     possible_moves.append([pos_x-1, pos_y+1])

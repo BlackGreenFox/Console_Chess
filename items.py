@@ -1,4 +1,5 @@
 
+
 class Item:
     def __init__(self, name, description):
         self.name = name
@@ -16,4 +17,12 @@ class Medkit(Item):
 
     def Use(self, figure):
         figure.health += self.health
+
+
+class BuildKit(Item):
+    def __init__(self, name, description):
+        super().__init__(name, description)
+
+
+        
 

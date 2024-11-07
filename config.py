@@ -6,7 +6,8 @@ SIZE_Y = 8
 AVIABLE_ITEMS = [
     Medkit("Small Medkit", "Classic medkit regen 1 hp", 1),
     Medkit("Medium Medkit", "Classic medkit regen 2 hp", 2),
-    Medkit("Large Medkit", "Classic medkit regen 3 hp", 3)
+    Medkit("Large Medkit", "Classic medkit regen 3 hp", 3),
+    BuildKit("BuildKit", "Kit for build")
 ]
 
 AVIABLE_GAMEMODES = [

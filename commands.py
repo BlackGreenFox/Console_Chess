@@ -1,5 +1,6 @@
 import time, os, random
 from config import *
+from figures import *
 
 class Command:
     def __init__(self):
@@ -35,7 +36,35 @@ class InventoryCommand(Command):
         for item in arg.selected_figure.inventory:
             text += ("     > " + item.name)
         return text
+
+
+class BuildCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/build - Use buildkit for buildings\n"
+
+    def execute(self, game):
+        text = ""
+
+        if game.selected_figure == None:
+            text += "Please select figure first"
+            return text
+        
+        x = game.selected_figure.pos[0]
+        y = game.selected_figure.pos[1]
     
+        for item in game.selected_figure.inventory:
+            if item.name == "BuildKit":
+                if game.board[x+1][y] == None and game.selected_figure.team == "White":
+                   game.board[x+1][y] = Baricade("Build", (x+1, y), "Wall",4)
+                elif game.board[x-1][y] == None and game.selected_figure.team == "Black":
+                   game.board[x-1][y] = Baricade("Build", (x-1, y), "Wall",4)
+                
+                text += "Builded"
+                return text
+        
+        text += "No Building Kit"
+        return text
 
 class SelectCommand(Command):
     def __init__(self):
@@ -49,17 +78,18 @@ class SelectCommand(Command):
             text += "Wrong argument"
             return text
 
-        x =  ord(arg[0].upper()) - ord('A')
-        y = 8 - int(arg[1]) 
+        x = ord(arg[0].upper()) - ord('A')
+        y = SIZE_Y - int(arg[1]) 
         
 
-        if game.turn % 2 == 0 and game.board[y][x].team == "White":
-            game.selected_figure = game.board[y][x]
-        elif game.turn % 2 == 1 and game.board[y][x].team == "Black":
-            game.selected_figure = game.board[y][x]
-        else:
-            text += "Error Not Select Figure" 
-            return text
+        #if game.turn % 2 == 0 and game.board[y][x].team == "White":
+        #    game.selected_figure = game.board[y][x]
+        #elif game.turn % 2 == 1 and game.board[y][x].team == "Black":
+        #    game.selected_figure = game.board[y][x]
+        game.selected_figure = game.board[y][x]
+        #else:
+        #    text += "Error Not Select Figure" 
+        #    return text
             
 
         if game.selected_figure != None:
@@ -70,6 +100,23 @@ class SelectCommand(Command):
 
         return text
     
+
+class InfoCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/info - Info about Figure\n"
+
+    def execute(self, arg):
+        text = "     >"
+
+        if arg.selected_figure == None:
+            text += "Please select figure first"
+            return text
+        figure = arg.selected_figure
+        text += f"{figure.team} {figure.name}, HP = {figure.health}, Pos = {figure.pos[0]}/{figure.pos[1]}"
+        return text
+
+        
 
 class MoveCommand(Command):
     def __init__(self):
@@ -84,7 +131,7 @@ class MoveCommand(Command):
             return text
         
         x = ord(arg[0].upper()) - ord('A')
-        y = 8 - int(arg[1]) 
+        y = SIZE_Y - int(arg[1]) 
 
         if game.selected_figure == None:
             text += "Please select figure first"
@@ -95,10 +142,22 @@ class MoveCommand(Command):
     
         for move in posibale_moves:
             if y == move[0] and x == move[1]:
-                game.board[y][x] = game.selected_figure
-                game.board[game.selected_figure.pos[0]][game.selected_figure.pos[1]] = None
-                text += f"Figure moved to {game.selected_figure.pos[0]}, {game.selected_figure.pos[1]}"
-                game.selected_figure.pos = (y,x)
+                
+                if game.board[y][x] != None:
+                    game.board[y][x].health -=1
+                    if game.destroy_figure([y,x]):
+                        text += f"Figure attack {arg[0]}{arg[1]} - {game.board[y][x].name}"
+                    
+
+                if game.board[y][x] == None:
+                    game.board[y][x] = game.selected_figure
+                    game.board[game.selected_figure.pos[0]][game.selected_figure.pos[1]] = None
+                    text += f"Figure moved to {game.selected_figure.pos[0]}, {game.selected_figure.pos[1]}"
+                    game.selected_figure.pos = (y,x)
+
+                    if isinstance(game.selected_figure, Pawn):
+                        game.selected_figure.first_turn = False
+
                 return text
             else:
                 text += "Cant move"

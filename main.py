@@ -17,7 +17,9 @@ class Game:
             "select" : SelectCommand(),
             "move" : MoveCommand(),
             "sand": SandCommand(),
-            "inv" : InventoryCommand()
+            "inv" : InventoryCommand(),
+            "build" : BuildCommand(),
+            "info" : InfoCommand(),
         }
 
     def make_board(self):
@@ -72,6 +74,12 @@ class Game:
             board[7][3] = Queen("Black", (7, 3), "Queen", 2)
             board[7][4] = King("Black", (7, 4), "King", 1)
         return board
+
+    def destroy_figure(self, arg):
+        if self.board[arg[0]][arg[1]].health <= 0:
+            self.board[arg[0]][arg[1]] = None
+            return True
+        return False
 
     def event(self):
        if self.text_print != "":
