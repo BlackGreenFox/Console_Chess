@@ -88,7 +88,46 @@ class Rook(Figure):
             self.icon = "E"
 
     def moves(self, game):
-        pass
+        pos_x = self.pos[0]
+        pos_y = self.pos[1]
+
+        possible_moves = []
+
+
+        for x in range(pos_x+1, SIZE_X):
+            if game.board[x][pos_y] != None:
+                if self.team != game.board[x][pos_y].team:
+                    possible_moves.append([x, pos_y])
+                break
+            else:
+                possible_moves.append([x, pos_y])
+                
+
+        for x in range(pos_x-1, -1, -1):
+            if game.board[x][pos_y] != None:
+                if self.team != game.board[x][pos_y].team:
+                    possible_moves.append([x, pos_y])
+                break
+            else:
+                possible_moves.append([x, pos_y])
+#
+        for y in range(pos_y+1, SIZE_Y):
+            if game.board[pos_x][y] != None:
+                if self.team != game.board[pos_x][y].team:
+                    possible_moves.append([pos_x, y])
+                break
+            else:
+                possible_moves.append([pos_x, y])
+        for y in range(pos_y-1, -1, -1):
+            if game.board[pos_x][y] != None:
+                if self.team != game.board[pos_x][y].team:
+                    possible_moves.append([pos_x, y])
+                break
+            else:
+                possible_moves.append([pos_x, y])
+
+
+        return possible_moves
 
 
 class Knight(Figure):

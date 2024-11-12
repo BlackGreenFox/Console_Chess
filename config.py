@@ -2,6 +2,10 @@ from items import *
 
 SIZE_X = 8
 SIZE_Y = 8
+MIN_SIZE_X = 8
+MIN_SIZE_Y = 8
+MAX_SIZE_X = 16
+MAX_SIZE_Y = 16
 
 AVIABLE_ITEMS = [
     Medkit("Small Medkit", "Classic medkit regen 1 hp", 1),

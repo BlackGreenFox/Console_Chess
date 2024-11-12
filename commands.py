@@ -145,7 +145,7 @@ class MoveCommand(Command):
                 
                 if game.board[y][x] != None:
                     game.board[y][x].health -=1
-                    if game.destroy_figure([y,x]):
+                    if not(game.destroy_figure([y,x])):
                         text += f"Figure attack {arg[0]}{arg[1]} - {game.board[y][x].name}"
                     
 
@@ -162,9 +162,27 @@ class MoveCommand(Command):
             else:
                 text += "Cant move"
 
-       
+        text +=  f"Can to"
+        for move in posibale_moves:
+           text +=  f" {move[0]}/{move[1]} |"
         return text
 
+
+class SizeCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = f"/size - Min {MIN_SIZE_X}/{MIN_SIZE_Y} | Max {MAX_SIZE_X}/{MAX_SIZE_Y}\n"
+
+    def execute(self, arg):
+        text = "     >"
+
+        if arg.selected_figure == None:
+            text += "Please select figure first"
+            return text
+        
+        figure = arg.selected_figure
+        text += f"{figure.team} {figure.name}, HP = {figure.health}, Pos = {figure.pos[0]}/{figure.pos[1]}"
+        return text
 
 
 
