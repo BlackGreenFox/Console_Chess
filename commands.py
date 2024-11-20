@@ -21,6 +21,7 @@ class HelpCommand(Command):
             text += ("     > " + command.description)
         return text
 
+
 class InventoryCommand(Command):
     def __init__(self):
         super().__init__()
@@ -36,6 +37,44 @@ class InventoryCommand(Command):
         for item in arg.selected_figure.inventory:
             text += ("     > " + item.name)
         return text
+
+
+class UseCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/use - Use any Item\n"
+
+    def execute(self, game, arg, target = None):
+        text = ""
+ 
+        if game.selected_figure == None:
+            text += "Please select figure first"
+            return text
+
+        for item in game.selected_figure.inventory:
+            if item.name == arg:
+                if target == None:
+                    item.Use(game.selected_figure)
+                    text += f"{game.selected_figure.name} used item named: {item.name}"
+                    game.selected_figure.inventory.remove(item)
+                    return text
+                else:
+                    if arg == "BuildKit":
+                        item.Use(game, target)
+                    else:
+                        item.Use(game.selected_figure, target)
+                    
+                    text += f"{game.selected_figure.name} used item named: {item.name} in {target}"
+                    game.selected_figure.inventory.remove(item)
+                    return text
+
+   
+                
+
+        text += f"{game.selected_figure.name} don`t have any {arg}"
+        
+        return text
+
 
 
 class BuildCommand(Command):
@@ -65,6 +104,7 @@ class BuildCommand(Command):
         
         text += "No Building Kit"
         return text
+
 
 class SelectCommand(Command):
     def __init__(self):
@@ -116,7 +156,6 @@ class InfoCommand(Command):
         text += f"{figure.team} {figure.name}, HP = {figure.health}, Pos = {figure.pos[0]}/{figure.pos[1]}"
         return text
 
-        
 
 class MoveCommand(Command):
     def __init__(self):

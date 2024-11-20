@@ -33,8 +33,6 @@ class Pawn(Figure):
     def __init__(self, team, pos, name,  health = 1):
         super().__init__(team, pos, name,  health)
         self.first_turn = True
-
-
         if team == "White":
             self.icon = ["  _  ", " (@) ", " d@b "]
         elif team == "Black":
@@ -76,7 +74,6 @@ class Pawn(Figure):
         return possible_moves
 
 
-
 class Rook(Figure):
     def __init__(self, team, pos, name,  health =1):
         super().__init__(team, pos, name,  health)
@@ -92,7 +89,6 @@ class Rook(Figure):
         pos_y = self.pos[1]
 
         possible_moves = []
-
 
         for x in range(pos_x+1, SIZE_X):
             if game.board[x][pos_y] != None:
@@ -142,7 +138,63 @@ class Knight(Figure):
 
     
     def moves(self, game):
-        pass
+        pos_x = self.pos[0]
+        pos_y = self.pos[1]
+
+        possible_moves = []
+
+        
+        if pos_x - 1 >= 0 and pos_y - 2 >= 0:
+            if game.board[pos_x-1][pos_y-2] == None:
+                possible_moves.append([pos_x-1, pos_y-2])
+            elif game.board[pos_x-1][pos_y-2].team != self.team:
+                possible_moves.append([pos_x-1, pos_y-2])
+
+        if pos_x - 2 >= 0 and pos_y - 1 >= 0:
+            if game.board[pos_x-2][pos_y-1] == None:
+                possible_moves.append([pos_x-2, pos_y-1]) 
+            elif game.board[pos_x-2][pos_y-1].team != self.team:
+                possible_moves.append([pos_x-2, pos_y-1]) 
+        
+        if pos_x - 2 >= 0 and pos_y + 1 < SIZE_Y:
+            if game.board[pos_x-2][pos_y+1] == None:
+                possible_moves.append([pos_x-2, pos_y+1]) 
+            elif game.board[pos_x-2][pos_y+1].team != self.team:
+                possible_moves.append([pos_x-2, pos_y+1])
+
+        if pos_x - 1 >= 0 and pos_y + 2 < SIZE_Y:
+            if game.board[pos_x-1][pos_y+2] == None:
+                possible_moves.append([pos_x-1, pos_y+2]) 
+            elif game.board[pos_x-1][pos_y+2].team != self.team:
+                possible_moves.append([pos_x-1, pos_y+2]) 
+
+        if pos_x + 1 < SIZE_X and pos_y -2 >= 0:
+            if game.board[pos_x+1][pos_y-2] == None:
+                possible_moves.append([pos_x+1, pos_y-2])
+            elif game.board[pos_x+1][pos_y-2].team != self.team:
+                possible_moves.append([pos_x+1, pos_y-2])
+
+        if pos_x + 2 < SIZE_X and pos_y -1 >= 0:
+            if game.board[pos_x+2][pos_y-1] == None:
+                possible_moves.append([pos_x+2, pos_y-1]) 
+            elif game.board[pos_x+2][pos_y-1].team != self.team:
+                possible_moves.append([pos_x+2, pos_y-1]) 
+        
+        if pos_x + 2 < SIZE_X and pos_y + 1 < SIZE_Y:
+            if game.board[pos_x+2][pos_y+1] == None:
+                possible_moves.append([pos_x+2, pos_y+1]) 
+            elif game.board[pos_x+2][pos_y+1].team != self.team:
+                possible_moves.append([pos_x+2, pos_y+1]) 
+
+        if pos_x + 1 < SIZE_X and pos_y + 2 < SIZE_Y:
+            if game.board[pos_x+1][pos_y+2] == None:
+                possible_moves.append([pos_x+1, pos_y+2]) 
+            elif game.board[pos_x+1][pos_y+2].team != self.team:
+                possible_moves.append([pos_x+1, pos_y+2]) 
+
+
+        return possible_moves
+
 
 class Bishop(Figure):
     def __init__(self, team, pos, name,  health = 1):

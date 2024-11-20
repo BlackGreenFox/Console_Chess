@@ -1,8 +1,8 @@
 from figures import *
 from commands import *
 from config import *
-import os, ctypes
-
+import os, ctypes, time
+from colorama import Fore, Style, init
 
 class Game:
     def __init__(self):   
@@ -20,6 +20,7 @@ class Game:
             "inv" : InventoryCommand(),
             "build" : BuildCommand(),
             "info" : InfoCommand(),
+            "use" : UseCommand(),
         }
 
     def make_board(self):
@@ -75,6 +76,15 @@ class Game:
             board[7][4] = King("Black", (7, 4), "King", 1)
         return board
 
+    def colorize_figure(self, text):
+        result = ""
+        for char in text:
+            if random.choice([True, False]): 
+                result += f"{Fore.RED}{char}{Style.RESET_ALL}"
+            else:
+                result += char
+        return result
+
     def destroy_figure(self, arg):
         if self.board[arg[0]][arg[1]].health <= 0:
             self.board[arg[0]][arg[1]] = None
@@ -88,11 +98,38 @@ class Game:
 
        str_command = input("     /")
        str_command = str_command.split()
-
+ 
        if str_command[0] in self.commands:
           command_instance = self.commands[str_command[0]]
 
+          breaks_open = True
+          breaks_close = False
           if len(str_command) > 1:
+            if str_command[1][0] == "\"":
+                buff_arg = ""
+                for buff_str in str_command[1:]:
+                    for char in buff_str:
+                        if char == "\"" and breaks_open:
+                            breaks_open = False
+                            continue
+                        elif char == "\"" and not(breaks_open):
+                            breaks_close = True
+                            break
+                        buff_arg += char
+
+                    str_command.remove(buff_str)
+                    
+                    if breaks_close:
+                        break
+
+                    buff_arg += " "
+                    
+ 
+                str_command[1] = buff_arg
+
+                if len(str_command) > 2:
+                      self.text_print += command_instance.execute(self, str_command[1], str_command[2])
+
             self.text_print += command_instance.execute(self, str_command[1])
           else:
             self.text_print += command_instance.execute(self)
@@ -133,7 +170,11 @@ class Game:
                         else:
                             cell = ". . ."
                     else:
-                        cell = figure.icon[row]
+                         # Фарбування тексту, якщо у фігури 1 здоров'я
+                        if hasattr(figure, 'health') and figure.health == 1 and figure.name != "King":
+                            cell = self.colorize_figure(figure.icon[row])
+                        else:
+                            cell = figure.icon[row]
                     row_str += f"{cell} | "
                 if row == 1:
                     row_str += f"{SIZE_X - x}"
@@ -154,6 +195,8 @@ class Game:
         # ------------- 
 
 
+    def proceess(self):
+        time.sleep(0.1) 
 
 
     def run(self):
@@ -181,6 +224,7 @@ def clear():
 
 if __name__ == "__main__":
     set_console_style()
-
+     
+    init(autoreset=True)
     game = Game()
     game.run()
