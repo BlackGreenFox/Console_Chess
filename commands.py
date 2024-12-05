@@ -1,86 +1,272 @@
 import time, os, random
-from config import *
-from figures import *
+from figures import Pawn
+from items import *
 
 class Command:
     def __init__(self):
         self.description = "Empty"
 
-    def execute(self, arg):
+    def execute(self, game, *args):
         pass # Implement in Other
 
+
+class StartCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/start - Command for Start game or Restart"
+
+    def execute(self, game, *args):
+        if not game.game_process:
+            game.restart_board()
+            game.game_process = True
+            return "     >Game started. For help type /help command\n     >Have a nice game"
+        
+        print("     >You sure about RESTART your game? Y/N")
+        str_command = input("     /").upper()
+
+        if str_command == 'Y' or str_command == 'YES':
+            game.restart_board()
+            return "     >NEW Game started. For help type /help command\n     >Better luck this time?"
+        else:
+            return "     >I abort all operations"
+
+    
 
 class HelpCommand(Command):
     def __init__(self):
         super().__init__()
-        self.description = "/help <page> - Command print info aboiut all comands\n"
+        self.description = "/help <page> - Command print info about all commands"
 
-    def execute(self, arg):
-        text = ""
-        for command in arg.commands.values():
-            text += ("     > " + command.description)
+    def execute(self, game, *args):
+        commands_per_page = 5
+        page = 1
+
+        if args:
+            try:
+                page = int(args[0])
+                if page < 1:
+                    page = 1
+            except ValueError:
+                return "     >Invalid page number. Please enter a valid integer."
+
+        start_index = (page - 1) * commands_per_page
+        end_index = start_index + commands_per_page
+
+        command_list = list(game.commands.values())
+
+        if start_index >= len(command_list):
+            return f"     >Page {page} is out of range. There are only {((len(command_list) - 1) // commands_per_page) + 1} pages available."
+        
+        text = f"     >Rules asdasdasdasd \n     >sdasdasd \n     >Today is day\n\n"
+        text += f"     >Commands - Page {page} of {((len(command_list) - 1) // commands_per_page) + 1}:\n\n"
+        for command in command_list[start_index:end_index]:
+            text += (f"     >{command.description}\n")
         return text
 
+
+class SelectCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/select <coordinate> - Selects a figure at the given position"
+
+    def execute(self, game, *args):
+        if not game.game_process:
+            return "     >Opppsi.. Game not start yet"
+
+        if not args:
+            return "     >No coordinate provided. Please provide a valid coordinate."
+
+        coordinate = args[0]
+        if len(coordinate) < 2 or not coordinate[0].isalpha() or not coordinate[1:].isdigit():
+            return "     >Wrong argument. Please provide a valid coordinate like A1."
+
+        y = ord(coordinate[0].upper()) - ord('A')
+        x = game.board_size_x - int(coordinate[1:])
+
+        if x < 0 or x >= game.board_size_x or y < 0 or y >= game.board_size_y:
+            return "     >Invalid coordinate. Out of board range."
+
+        selected_figure = game.board[x][y]
+        if selected_figure is None:
+            return f"     >No figure found at {coordinate}."
+
+        if game.turn % 2 == 1 and selected_figure.team == "White":
+            game.selected_figure = selected_figure
+            return f"     >Figure selected: {selected_figure.name} at {coordinate}"
+        elif game.turn % 2 == 0 and selected_figure.team == "Black":
+            game.selected_figure = selected_figure
+            return f"     >Figure selected: {selected_figure.name} at {coordinate}"
+        else:
+             return f"     >Wrong Figure | is {'White' if game.turn % 2 == 1 else 'Black'} turn now"
+       
+
+
+class MoveCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/move <arf> - Move selected figure"
+
+    def execute(self, game, *args):
+        if not game.game_process:
+            return "     >Opppsi.. Game not start yet"
+
+        if not args:
+            return "     >No target provided. Please provide a valid target."
+
+        target = args[0]
+        if len(target) < 2 or not target[0].isalpha() or not target[1:].isdigit():
+            return "     >Wrong argument. Please provide a valid target like A1."
+
+        y = ord(target[0].upper()) - ord('A')
+        x = game.board_size_x - int(target[1:])
+
+        if x < 0 or x >= game.board_size_x or y < 0 or y >= game.board_size_y:
+            return "     >Invalid target. Out of board range."
+
+        if game.selected_figure is None:
+            return "     >Please select a figure first."
+
+        possible_moves = game.selected_figure.moves(game)
+
+        for move in possible_moves:
+            if x == move[0] and y == move[1]:
+                target_cell = game.board[x][y]
+                if target_cell is not None:
+                    target_cell.health -= 1
+                    if target_cell.health <= 0:
+                        game.destroy_figure((x, y))
+                        game.board[y][x] = None
+
+                        game.board[game.selected_figure.pos[0]][game.selected_figure.pos[1]] = None
+                        game.board[x][y] = game.selected_figure
+                        game.selected_figure.pos = (x, y)
+                        game.end_turn()
+                        return f"     >Figure attacked and destroyed at {target}"
+                    else:
+                        game.end_turn()
+                        return f"     >Figure attacked at {target} - {target_cell.name}"
+
+                game.board[x][y] = game.selected_figure
+                game.board[game.selected_figure.pos[0]][game.selected_figure.pos[1]] = None
+                game.selected_figure.pos = (x, y)
+
+                if isinstance(game.selected_figure, Pawn):
+                    game.selected_figure.first_turn = False
+                
+                game.end_turn()
+                return f"     >Figure moved to {target}"
+        
+        available_moves = " | ".join([f"{chr(move[1] + ord('A'))}{game.board_size_x - move[0]}" for move in possible_moves])
+        return f"     >Cannot move to {target}. Available moves: {available_moves}"
+
+
+class InfoCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/info - Info about Figure"
+
+    def execute(self, game, *args):
+        if not game.game_process:
+            return "     >Opppsi.. Game not start yet"
+        
+        if game.selected_figure == None:
+            return f"     >Please select figure first"
+        
+        figure = game.selected_figure
+        return f"     >{figure.team} {figure.name}, HP = {figure.health}, Pos = {figure.pos[0]}/{figure.pos[1]}"
+ 
+    
 
 class InventoryCommand(Command):
     def __init__(self):
         super().__init__()
-        self.description = "/inv - Looks in inventory\n"
+        self.description = "/inv - Looks in inventory"
 
-    def execute(self, arg):
-        text = ""
-
-        if arg.selected_figure == None:
-            text += "Please select figure first"
-            return text
+    def execute(self,  game, *args):
+        if not game.game_process:
+            return "     >Opppsi.. Game not start yet"
+        
+        text = "     >Inventory:"
     
-        for item in arg.selected_figure.inventory:
-            text += ("     > " + item.name)
+        if game.selected_figure == None:
+            return f"     >Please select figure first"
+    
+        for item in game.selected_figure.inventory:
+            text += (" " + item.name + ",")
         return text
+
+    
+
+class LookCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/look - Looks in inventory"
+
+    def execute(self, game, *args):
+        if not game.game_process:
+            return "     >Opppsi.. Game not start yet"
+        
+        if game.selected_figure == None:
+            return f"     >Please select figure first"
+ 
+    
+        for item in game.selected_figure.inventory:
+            if item.name == args[0]:
+                return f"     >{item.name} - {item.description}"
+            
+        return f"     >No such Item"
+    
+
 
 
 class UseCommand(Command):
     def __init__(self):
         super().__init__()
-        self.description = "/use - Use any Item\n"
+        self.description = "/use - Use any Item"
 
-    def execute(self, game, arg, target = None):
-        text = ""
- 
-        if game.selected_figure == None:
-            text += "Please select figure first"
-            return text
-
-        for item in game.selected_figure.inventory:
-            if item.name == arg:
-                if target == None:
-                    item.Use(game.selected_figure)
-                    text += f"{game.selected_figure.name} used item named: {item.name}"
-                    game.selected_figure.inventory.remove(item)
-                    return text
-                else:
-                    if arg == "BuildKit":
-                        item.Use(game, target)
-                    else:
-                        item.Use(game.selected_figure, target)
-                    
-                    text += f"{game.selected_figure.name} used item named: {item.name} in {target}"
-                    game.selected_figure.inventory.remove(item)
-                    return text
-
-   
-                
-
-        text += f"{game.selected_figure.name} don`t have any {arg}"
+    def execute(self, game, *args):
+        if not game.game_process:
+            return "     >Opppsi.. Game not start yet"
         
-        return text
+        text = ""
 
+        if game.selected_figure is None:
+            return "     >Please select figure first"
+
+        # Перевіряємо чи є предмет в інвентарі
+        for item in game.selected_figure.inventory:
+            if item.name == args[0]:
+                # Перевірка на наявність будівлі, якщо аргумент переданий
+                if len(args) < 2 or args[1] not in game.buildings:
+                    return f"     >Building {args[1]} is not available." if len(args) > 1 else "     >Please specify the building to use the item on."
+                
+                building_type = args[1]  # Тип будівлі
+                target_building = game.buildings.get(building_type)
+
+                # Якщо координати не вказані, використовуємо (x+1, y+1)
+                if len(args) < 3:
+                    target_coords = None
+                else:
+                    target_coords = tuple(map(int, args[2].split(',')))  # Вказуємо координати через "x,y"
+                
+                # Використовуємо BuildKit для побудови
+                if isinstance(item, BuildKit):
+                    item.Use(game, target_coords)
+                    game.selected_figure.inventory.remove(item)
+                    return f"{game.selected_figure.name} used item '{args[0]}' to build {building_type} at {target_coords}"
+
+                # Якщо предмет не є BuildKit, використовується як звичайний предмет
+                item.Use(game.selected_figure, target_coords)
+                game.selected_figure.inventory.remove(item)
+                return f"{game.selected_figure.name} used item '{args[0]}' at coordinates {target_coords}"
+
+        return f"     >Item {args[0]} is not in your inventory."
 
 
 class BuildCommand(Command):
     def __init__(self):
         super().__init__()
-        self.description = "/build - Use buildkit for buildings\n"
+        self.description = "/build - Use buildkit for buildings"
 
     def execute(self, game):
         text = ""
@@ -106,111 +292,18 @@ class BuildCommand(Command):
         return text
 
 
-class SelectCommand(Command):
-    def __init__(self):
-        super().__init__()
-        self.description = "/select <cordinate> - A1 to select figure\n"
 
-    def execute(self, game, arg):
-        text = "     >" 
-
-        if len(arg) < 2 or arg[0].isnumeric() or not arg[1].isnumeric() :
-            text += "Wrong argument"
-            return text
-
-        x = ord(arg[0].upper()) - ord('A')
-        y = SIZE_Y - int(arg[1]) 
-        
-
-        #if game.turn % 2 == 0 and game.board[y][x].team == "White":
-        #    game.selected_figure = game.board[y][x]
-        #elif game.turn % 2 == 1 and game.board[y][x].team == "Black":
-        #    game.selected_figure = game.board[y][x]
-        game.selected_figure = game.board[y][x]
-        #else:
-        #    text += "Error Not Select Figure" 
-        #    return text
-            
-
-        if game.selected_figure != None:
-            text += f"Figure selected from {y} \ {x} or {arg[0]}{arg[1]}\n" 
-            text += "     >"
-            text += f"Figure name {game.selected_figure.name}" 
-
-
-        return text
     
 
-class InfoCommand(Command):
-    def __init__(self):
-        super().__init__()
-        self.description = "/info - Info about Figure\n"
-
-    def execute(self, arg):
-        text = "     >"
-
-        if arg.selected_figure == None:
-            text += "Please select figure first"
-            return text
-        figure = arg.selected_figure
-        text += f"{figure.team} {figure.name}, HP = {figure.health}, Pos = {figure.pos[0]}/{figure.pos[1]}"
-        return text
 
 
-class MoveCommand(Command):
-    def __init__(self):
-        super().__init__()
-        self.description = "/move <arf> - Move selected figure\n"
 
-    def execute(self, game, arg):
-        text = "     >"
-
-        if len(arg) < 2 or arg[0].isnumeric() or not arg[1].isnumeric() :
-            text += "Wrong argument"
-            return text
-        
-        x = ord(arg[0].upper()) - ord('A')
-        y = SIZE_Y - int(arg[1]) 
-
-        if game.selected_figure == None:
-            text += "Please select figure first"
-            return text
-        
-
-        posibale_moves = game.selected_figure.moves(game)
-    
-        for move in posibale_moves:
-            if y == move[0] and x == move[1]:
-                
-                if game.board[y][x] != None:
-                    game.board[y][x].health -=1
-                    if not(game.destroy_figure([y,x])):
-                        text += f"Figure attack {arg[0]}{arg[1]} - {game.board[y][x].name}"
-                    
-
-                if game.board[y][x] == None:
-                    game.board[y][x] = game.selected_figure
-                    game.board[game.selected_figure.pos[0]][game.selected_figure.pos[1]] = None
-                    text += f"Figure moved to {game.selected_figure.pos[0]}, {game.selected_figure.pos[1]}"
-                    game.selected_figure.pos = (y,x)
-
-                    if isinstance(game.selected_figure, Pawn):
-                        game.selected_figure.first_turn = False
-
-                return text
-            else:
-                text += "Cant move"
-
-        text +=  f"Can to"
-        for move in posibale_moves:
-           text +=  f" {move[0]}/{move[1]} |"
-        return text
 
 
 class SizeCommand(Command):
     def __init__(self):
         super().__init__()
-        self.description = f"/size - Min {MIN_SIZE_X}/{MIN_SIZE_Y} | Max {MAX_SIZE_X}/{MAX_SIZE_Y}\n"
+        self.description = f"/size - Min {MIN_SIZE_X}/{MIN_SIZE_Y} | Max {MAX_SIZE_X}/{MAX_SIZE_Y}"
 
     def execute(self, arg):
         text = "     >"
@@ -221,6 +314,19 @@ class SizeCommand(Command):
         
         figure = arg.selected_figure
         text += f"{figure.team} {figure.name}, HP = {figure.health}, Pos = {figure.pos[0]}/{figure.pos[1]}"
+        return text
+
+
+
+class TestCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/test - Test command that prints all arguments"
+
+    def execute(self, game, *args):
+        text = ""
+        for i, arg in enumerate(args, start=1):
+            text += f"Argument {i} = {arg}\n"
         return text
 
 
@@ -240,73 +346,4 @@ class SizeCommand(Command):
 
 
 
-
-
-WIDTH, HEIGHT = 75, 40
-gradient = ".:!/r(l1Z4H9W8$@"
-grid = [[' ' for _ in range(WIDTH)] for _ in range(HEIGHT)]
-
-class SandCommand(Command):
-    def __init__(self):
-        super().__init__()
-        self.description = "/particles - Simulate particles falling like sand using the current board state.\n"
-
-    def execute(self, game, *args):
-        # Create a new array of symbols using the drawn board
-        board_symbols = []
-        board_symbols.append("        A       B       C       D       E       F       G       H")
-        for y in range(8):
-            board_symbols.append("     ------- ------- ------- ------- ------- ------- ------- -------")
-            for row in range(3):
-                row_symbols = []
-                for x in range(8):
-                    figure = game.board[y][x]
-                    if figure is None:
-                        if (x + y) % 2 == 0:
-                            cell = "     "
-                        else:
-                            cell = ". . ."
-                    else:
-                        cell = figure.icon[row]
-                    row_symbols.append((x, y * 3 + row, cell))
-                board_symbols.append(row_symbols)  # Only row_symbols is a list of tuples
-        board_symbols.append("     ------- ------- ------- ------- ------- ------- ------- -------")
-        board_symbols.append("        A       B       C       D       E       F       G       H")
-
-        # Extract individual symbols for the falling animation
-        particles = []
-        for item in board_symbols:
-            if isinstance(item, list):  # Only process rows that contain tuples
-                for x, y, cell in item:
-                    for i, symbol in enumerate(cell):
-                        if symbol != ' ':
-                            particles.append((x * 7 + i, y, symbol))
-
-        def update_particles():
-            nonlocal particles
-            new_particles = []
-            for x, y, symbol in particles:
-                if y < HEIGHT - 1 and (x, y + 1, symbol) not in particles:
-                    new_particles.append((x, y + 1, symbol))
-                else:
-                    new_particles.append((x, y, symbol))
-            particles[:] = new_particles
-
-        def render():
-            os.system('cls' if os.name == 'nt' else 'clear')
-            for y in range(HEIGHT):
-                for x in range(WIDTH):
-                    grid[y][x] = ' '
-            for x, y, symbol in particles:
-                if 0 <= y < HEIGHT and 0 <= x < WIDTH:
-                    grid[y][x] = symbol
-            for row in grid:
-                print(''.join(row))
-
-        # Run the particle simulation
-        for _ in range(60):
-            update_particles()
-            render()
-            time.sleep(0.1)
-        return "Particle simulation completed.\n"
 

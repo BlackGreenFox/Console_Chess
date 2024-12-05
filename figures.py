@@ -1,6 +1,3 @@
-from config import *
-import random
-
 class Figure:
     def __init__(self, team, pos, name, health = 1, selectable = True):
         self.selectable = selectable
@@ -10,14 +7,11 @@ class Figure:
 
         self.name = name
         self.health = health
-
         self.inventory = []
 
-        if GAMEMODE == "War":
-            for _ in range(random.randint(1, 5)):
-                rand_item = random.choice(AVIABLE_ITEMS)
-                self.inventory.append(rand_item)
-
+    def set_items(self, items):
+        self.inventory = items
+ 
 
 
 class Baricade(Figure):
@@ -46,7 +40,7 @@ class Pawn(Figure):
 
         possible_moves = []
 
-        if self.team == "White" and pos_x + 1 < SIZE_Y:
+        if self.team == "White" and pos_x + 1 < game.board_size_y:
             if game.board[pos_x+1][pos_y] == None:
                 possible_moves.append([pos_x+1, pos_y])
             if game.board[pos_x+2][pos_y] == None and self.first_turn:
@@ -90,7 +84,7 @@ class Rook(Figure):
 
         possible_moves = []
 
-        for x in range(pos_x+1, SIZE_X):
+        for x in range(pos_x+1, game.board_size_y):
             if game.board[x][pos_y] != None:
                 if self.team != game.board[x][pos_y].team:
                     possible_moves.append([x, pos_y])
@@ -107,7 +101,7 @@ class Rook(Figure):
             else:
                 possible_moves.append([x, pos_y])
 #
-        for y in range(pos_y+1, SIZE_Y):
+        for y in range(pos_y+1, game.board_size_y):
             if game.board[pos_x][y] != None:
                 if self.team != game.board[pos_x][y].team:
                     possible_moves.append([pos_x, y])
@@ -156,37 +150,37 @@ class Knight(Figure):
             elif game.board[pos_x-2][pos_y-1].team != self.team:
                 possible_moves.append([pos_x-2, pos_y-1]) 
         
-        if pos_x - 2 >= 0 and pos_y + 1 < SIZE_Y:
+        if pos_x - 2 >= 0 and pos_y + 1 < game.board_size_y:
             if game.board[pos_x-2][pos_y+1] == None:
                 possible_moves.append([pos_x-2, pos_y+1]) 
             elif game.board[pos_x-2][pos_y+1].team != self.team:
                 possible_moves.append([pos_x-2, pos_y+1])
 
-        if pos_x - 1 >= 0 and pos_y + 2 < SIZE_Y:
+        if pos_x - 1 >= 0 and pos_y + 2 < game.board_size_y:
             if game.board[pos_x-1][pos_y+2] == None:
                 possible_moves.append([pos_x-1, pos_y+2]) 
             elif game.board[pos_x-1][pos_y+2].team != self.team:
                 possible_moves.append([pos_x-1, pos_y+2]) 
 
-        if pos_x + 1 < SIZE_X and pos_y -2 >= 0:
+        if pos_x + 1 < game.board_size_y and pos_y -2 >= 0:
             if game.board[pos_x+1][pos_y-2] == None:
                 possible_moves.append([pos_x+1, pos_y-2])
             elif game.board[pos_x+1][pos_y-2].team != self.team:
                 possible_moves.append([pos_x+1, pos_y-2])
 
-        if pos_x + 2 < SIZE_X and pos_y -1 >= 0:
+        if pos_x + 2 < game.board_size_y and pos_y -1 >= 0:
             if game.board[pos_x+2][pos_y-1] == None:
                 possible_moves.append([pos_x+2, pos_y-1]) 
             elif game.board[pos_x+2][pos_y-1].team != self.team:
                 possible_moves.append([pos_x+2, pos_y-1]) 
         
-        if pos_x + 2 < SIZE_X and pos_y + 1 < SIZE_Y:
+        if pos_x + 2 < game.board_size_y and pos_y + 1 < game.board_size_y:
             if game.board[pos_x+2][pos_y+1] == None:
                 possible_moves.append([pos_x+2, pos_y+1]) 
             elif game.board[pos_x+2][pos_y+1].team != self.team:
                 possible_moves.append([pos_x+2, pos_y+1]) 
 
-        if pos_x + 1 < SIZE_X and pos_y + 2 < SIZE_Y:
+        if pos_x + 1 < game.board_size_y and pos_y + 2 < game.board_size_y:
             if game.board[pos_x+1][pos_y+2] == None:
                 possible_moves.append([pos_x+1, pos_y+2]) 
             elif game.board[pos_x+1][pos_y+2].team != self.team:
@@ -208,7 +202,29 @@ class Bishop(Figure):
 
 
     def moves(self, game):
-        pass
+        pos_x = self.pos[0]
+        pos_y = self.pos[1]
+
+        possible_moves = []
+
+        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # діагоналі: верх ліво, верх право, низ ліво, низ право
+
+        for dx, dy in directions:
+            x, y = pos_x, pos_y
+            while 0 <= x + dx < game.board_size_x and 0 <= y + dy < game.board_size_y:  # перевірка меж поля
+                x += dx
+                y += dy
+                if game.board[x][y] is None:
+                    possible_moves.append([x, y])
+                elif game.board[x][y].team != self.team:
+                    possible_moves.append([x, y])
+                    break  
+                else:
+                    break   
+
+        return possible_moves
+
+
 
 class Queen(Figure):
     def __init__(self, team, pos, name,  health = 1):
@@ -222,7 +238,43 @@ class Queen(Figure):
 
 
     def moves(self, game):
-        pass
+        pos_x = self.pos[0]
+        pos_y = self.pos[1]
+
+        possible_moves = []
+
+        # рух по вертикалі та горизонталі
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # вертикаль, горизонталь
+        for dx, dy in directions:
+            x, y = pos_x, pos_y
+            while 0 <= x + dx < game.board_size_x and 0 <= y + dy < game.board_size_y:  # перевірка меж поля
+                x += dx
+                y += dy
+                if game.board[x][y] is None:
+                    possible_moves.append([x, y])
+                elif game.board[x][y].team != self.team:
+                    possible_moves.append([x, y])
+                    break  # зупинити рух, якщо фігура суперника
+                else:
+                    break  # зупинити рух, якщо своя фігура
+
+        # рух по діагоналях (як у слона)
+        directions_diag = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # діагоналі
+        for dx, dy in directions_diag:
+            x, y = pos_x, pos_y
+            while 0 <= x + dx < game.board_size_x and 0 <= y + dy < game.board_size_y:  # перевірка меж поля
+                x += dx
+                y += dy
+                if game.board[x][y] is None:
+                    possible_moves.append([x, y])
+                elif game.board[x][y].team != self.team:
+                    possible_moves.append([x, y])
+                    break  # зупинити рух, якщо фігура суперника
+                else:
+                    break  # зупинити рух, якщо своя фігура
+
+        return possible_moves
+
 
 class King(Figure):
     def __init__(self, team, pos, name,  health = 1):
@@ -236,4 +288,17 @@ class King(Figure):
 
 
     def moves(self, game):
-        pass
+        pos_x = self.pos[0]
+        pos_y = self.pos[1]
+
+        possible_moves = []
+
+        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]  # всі 8 напрямків
+
+        for dx, dy in directions:
+            x, y = pos_x + dx, pos_y + dy
+            if 0 <= x < game.board_size_x and 0 <= y < game.board_size_y:  # перевірка меж поля
+                if game.board[x][y] is None or game.board[x][y].team != self.team:  # порожня клітинка або фігура суперника
+                    possible_moves.append([x, y])
+
+        return possible_moves
