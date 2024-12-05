@@ -7,7 +7,7 @@ from colorama import Fore, Back, Style, init
 
 class Game:
     def __init__(self):   
-        # Static Varib;es
+        # Static Varibles
         self.commands = AVIABLE_COMMANDS
         self.buildings = AVIABLE_BUILDINGS
         self.board_size_x = SIZE_X
@@ -90,6 +90,13 @@ class Game:
         print('     >  ---  ---  PRESS ANY BOTTON  ---  ---  \n\n')
         input()
 
+    def check_figure(self, team, type_figure):
+        for row in self.board:
+            for figure in row:
+                if isinstance(figure, type_figure) and team == figure.team:
+                    return figure
+            
+        return None
 
     def colorize_figure(self, text):
         result = ""
@@ -110,10 +117,12 @@ class Game:
         return False
 
     def end_turn(self):
+        if self.check_figure("White", King):
+            print("King alive")
+            input()
         #self.turn += 1
         #self.selected_figure = None
         pass
-
 
     def event(self):
         str_command = input("     /").strip()
@@ -189,7 +198,6 @@ class Game:
                         else:
                             cell = ". . ."
                     else:
-                         # Фарбування тексту, якщо у фігури 1 здоров'я
                         if hasattr(figure, 'health') and figure.health == 1 and figure.name != "King":
                             cell = self.colorize_figure(figure.icon[row])
                         else:

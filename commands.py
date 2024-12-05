@@ -7,7 +7,7 @@ class Command:
         self.description = "Empty"
 
     def execute(self, game, *args):
-        pass # Implement in Other
+        pass  
 
 
 class StartCommand(Command):
@@ -86,19 +86,21 @@ class SelectCommand(Command):
         if x < 0 or x >= game.board_size_x or y < 0 or y >= game.board_size_y:
             return "     >Invalid coordinate. Out of board range."
 
-        selected_figure = game.board[x][y]
+        
+        selected_figure = None
+
+        if game.turn % 2 and game.board[x][y].team == "White":
+            selected_figure = game.board[x][y] 
+        elif not game.turn % 2 and game.board[x][y].team == "Black":
+            selected_figure = game.board[x][y] 
+        else:
+            return f"     >No... is {"White" if game.turn % 2 else "Black"} turn now."
+
         if selected_figure is None:
             return f"     >No figure found at {coordinate}."
 
-        if game.turn % 2 == 1 and selected_figure.team == "White":
-            game.selected_figure = selected_figure
-            return f"     >Figure selected: {selected_figure.name} at {coordinate}"
-        elif game.turn % 2 == 0 and selected_figure.team == "Black":
-            game.selected_figure = selected_figure
-            return f"     >Figure selected: {selected_figure.name} at {coordinate}"
-        else:
-             return f"     >Wrong Figure | is {'White' if game.turn % 2 == 1 else 'Black'} turn now"
-       
+        game.selected_figure = selected_figure
+        return f"     >Figure selected: {selected_figure.name} at {coordinate}"
 
 
 class MoveCommand(Command):
@@ -143,7 +145,6 @@ class MoveCommand(Command):
                         game.end_turn()
                         return f"     >Figure attacked and destroyed at {target}"
                     else:
-                        game.end_turn()
                         return f"     >Figure attacked at {target} - {target_cell.name}"
 
                 game.board[x][y] = game.selected_figure
@@ -152,7 +153,7 @@ class MoveCommand(Command):
 
                 if isinstance(game.selected_figure, Pawn):
                     game.selected_figure.first_turn = False
-                
+
                 game.end_turn()
                 return f"     >Figure moved to {target}"
         
