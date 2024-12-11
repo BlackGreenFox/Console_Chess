@@ -15,17 +15,16 @@ class Figure:
 
 
 class Baricade(Figure):
-    def __init__(self, team, pos, name,  health = 1):  
-        super().__init__(team, pos, name,  health)  
-        
+    def __init__(self, team, pos, name, health = 1):  
+        super().__init__(team, pos, name, health)  
         
         self.icon = ["|ooo|", "|XXX|", "|XXX|"]
           
 
 
 class Pawn(Figure):
-    def __init__(self, team, pos, name,  health = 1):
-        super().__init__(team, pos, name,  health)
+    def __init__(self, team, pos, name, health = 1):
+        super().__init__(team, pos, name, health)
         self.first_turn = True
         if team == "White":
             self.icon = ["  _  ", " (@) ", " d@b "]
@@ -33,6 +32,7 @@ class Pawn(Figure):
             self.icon = ["  _  ", " ( ) ", " /_\\ "]
         else:
             self.icon = "E"
+
 
     def moves(self, game):
         pos_x = self.pos[0]
@@ -58,9 +58,6 @@ class Pawn(Figure):
                 elif game.board[x][y].team != self.team and dy != 0:
                     possible_moves.append([x,y])
 
- 
-
-
         return possible_moves
 
 
@@ -73,6 +70,7 @@ class Rook(Figure):
             self.icon = ["[___]", " [ ] ", "/___\\"]
         else:
             self.icon = "E"
+
 
     def moves(self, game):
         pos_x = self.pos[0]

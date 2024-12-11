@@ -1,19 +1,13 @@
 from items import *
 from figures import *
 from commands import *
-
-SIZE_X = 8
-SIZE_Y = 8
-MIN_SIZE_X = 8
-MIN_SIZE_Y = 8
-MAX_SIZE_X = 16
-MAX_SIZE_Y = 16
-
-GRADIENT = ".:!/r(l1Z4H9W8$@"
+from settings import *
 
 AVIABLE_COMMANDS = {
     "help" : HelpCommand(),
     'start' : StartCommand(),
+    "settings" : SettingsCommand(),
+    "set" : SettingsCommand(),
     "select" : SelectCommand(),
     "move" : MoveCommand(),
     "inv" : InventoryCommand(),
@@ -44,9 +38,5 @@ AVIABLE_FIGURES = {
     "Queen": Queen,
     "King": King,
 }
- 
-AVIABLE_GAMEMODES = [
-    "Classic",
-    "War"
-]
+
  

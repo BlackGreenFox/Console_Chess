@@ -1,7 +1,6 @@
 
 from config import *
  
-
 import os, ctypes, time
 from colorama import Fore, Back, Style, init
 
@@ -25,9 +24,11 @@ class Game:
         # For Prikols
         self.processes = []
 
+        self.set_console_style()
+
 
     def make_board(self):
-        board = [[None for _ in range(SIZE_Y)] for _ in range(SIZE_X)]
+        board = [[None for _ in range(self.board_size_y)] for _ in range(self.board_size_x)]
 
         piece_placement = {
             "Classic": [
@@ -117,9 +118,6 @@ class Game:
         return False
 
     def end_turn(self):
-        if self.check_figure("White", King):
-            print("King alive")
-            input()
         #self.turn += 1
         #self.selected_figure = None
         pass
@@ -168,29 +166,29 @@ class Game:
         cord_y = "ABCDEFGHIJKLMNOP"
         # ------------- 
         border_str_y = " "
-        for i in range(SIZE_Y):
+        for i in range(self.board_size_y):
                 border_str_y += "       "
                 border_str_y += cord_y[i]
         print(border_str_y)
         # ------------- 
 
          
-        for x in range(SIZE_X):
+        for x in range(self.board_size_x):
             # ------------- 
             border_str_y2 = "    "
-            for _ in range(SIZE_Y):
+            for _ in range(self.board_size_y):
                 border_str_y2 += " "
                 border_str_y2 += "-------"
             print(border_str_y2)
            # ------------- 
             for row in range(3):
                 row_str = ""
-                if SIZE_X - x > 9:
-                    row_str = " {} | ".format(SIZE_X - x) if row == 1 else "    | "
+                if self.board_size_x - x > 9:
+                    row_str = " {} | ".format(self.board_size_x - x) if row == 1 else "    | "
                 else:
-                    row_str = "  {} | ".format(SIZE_X - x) if row == 1 else "    | "
+                    row_str = "  {} | ".format(self.board_size_x - x) if row == 1 else "    | "
                 
-                for y in range(SIZE_Y):
+                for y in range(self.board_size_y):
                     figure = self.board[x][y]
                     if figure is None:
                         if (x + y) % 2 == 0:
@@ -204,20 +202,20 @@ class Game:
                             cell = figure.icon[row]
                     row_str += f"{cell} | "
                 if row == 1:
-                    row_str += f"{SIZE_X - x}"
+                    row_str += f"{self.board_size_x - x}"
                 print(row_str)
         
         
         # ------------- 
         border_str_y2 = "    "
-        for _ in range(SIZE_Y):
+        for _ in range(self.board_size_y):
             border_str_y2 += " "
             border_str_y2 += "-------"
         print(border_str_y2)
         # ------------- 
         # ------------- 
         border_str_y = " "
-        for i in range(SIZE_Y):
+        for i in range(self.board_size_y):
                 border_str_y += "       "
                 border_str_y += cord_y[i]
         print(border_str_y)
@@ -269,23 +267,25 @@ class Game:
 
 
 
-def set_console_style():
-    os.system(f'mode con: cols={8*SIZE_Y+ 9} lines={5*SIZE_X}')
-    hwnd = ctypes.windll.kernel32.GetConsoleWindow()
-    if hwnd != 0:
-        GWL_STYLE = -16
-        current_style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_STYLE)
+    def set_console_style(self):
+        os.system(f'mode con: cols={8*self.board_size_y+ 9} lines={5*self.board_size_x}')
+        hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+        if hwnd != 0:
+            GWL_STYLE = -16
+            current_style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_STYLE)
 
-        new_style = current_style & ~0x00040000
-        
-        ctypes.windll.user32.SetWindowLongW(hwnd, GWL_STYLE, new_style)
-        ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0002 | 0x0001)
+            new_style = current_style & ~0x00040000
+
+            ctypes.windll.user32.SetWindowLongW(hwnd, GWL_STYLE, new_style)
+            ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0002 | 0x0001)
+
+
 def clear():
     os.system('cls')
 
 
 if __name__ == "__main__":
-    set_console_style()
+    
      
     init(autoreset=True)
     game = Game()

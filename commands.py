@@ -1,6 +1,8 @@
 import time, os, random
 from figures import Pawn
 from items import *
+from settings import *
+
 
 class Command:
     def __init__(self):
@@ -17,14 +19,15 @@ class StartCommand(Command):
 
     def execute(self, game, *args):
         if not game.game_process:
+            game.set_console_style()
             game.restart_board()
             game.game_process = True
             return "     >Game started. For help type /help command\n     >Have a nice game"
         
         print("     >You sure about RESTART your game? Y/N")
         str_command = input("     /").upper()
-
         if str_command == 'Y' or str_command == 'YES':
+            game.set_console_style()
             game.restart_board()
             return "     >NEW Game started. For help type /help command\n     >Better luck this time?"
         else:
@@ -52,7 +55,10 @@ class HelpCommand(Command):
         start_index = (page - 1) * commands_per_page
         end_index = start_index + commands_per_page
 
-        command_list = list(game.commands.values())
+        avilable_commands = dict(game.commands)
+        avilable_commands.pop('set', None)
+        command_list = list(avilable_commands.values())
+
 
         if start_index >= len(command_list):
             return f"     >Page {page} is out of range. There are only {((len(command_list) - 1) // commands_per_page) + 1} pages available."
@@ -62,6 +68,81 @@ class HelpCommand(Command):
         for command in command_list[start_index:end_index]:
             text += (f"     >{command.description}\n")
         return text
+
+
+class SettingsCommand(Command):
+    def __init__(self):
+        super().__init__()
+        self.description = "/settings or set <options> <value> - Change game settings"
+
+    def execute(self, game, *args):
+        if game.game_process:
+            return "     >Opppsi.. Game Start so.... :3"
+            
+
+        if len(args) < 2:
+            text = f"     >Command need <option> and <value>\n"
+            text += f"     >List Options:\n"
+            text += f"     >size_x / X - Set X board size\n"
+            text += f"     >size_y / Y - Set X board size\n"
+            text += f"     >size_map / map - Set X/Y board size\n"
+            text += f"     >gamemode - Set GAMEMODE\n"
+            return text
+
+        option, value = args[0].lower(), args[1]
+
+        match option:
+            case "size_x"| "x":
+                try:
+                    size = int(value)
+                    if MIN_SIZE_X <= size <= MAX_SIZE_X:
+                        game.board_size_x = size
+                        return f"     >Now Map size X = {size}"
+                    else:
+                        return f"     >Size X must be between {MIN_SIZE_X} and {MAX_SIZE_X}"
+                except ValueError:
+                    return "     >Error Something go wrong"  
+            case "size_y" | "y":
+                try:
+                    size = int(value)
+                    if MIN_SIZE_Y <= size <= MAX_SIZE_Y:
+                        game.board_size_y = size
+                        return f"     >Now Map size Y = {size}"
+                    else:
+                        return f"     >Size Y must be between {MIN_SIZE_Y} and {MAX_SIZE_Y}"
+                except ValueError:
+                    return "     >Error Something go wrong"
+            case "size_map"| "map":
+                try:
+                    size = int(value)
+                    if MIN_SIZE_Y <= size <= MAX_SIZE_Y and MIN_SIZE_X <= size <= MAX_SIZE_X:
+                        game.board_size_x = size
+                        game.board_size_y = size
+                        return f"     >Now Map siz = {size}/{size}"
+                    else:
+                        return f"     >Map Size must be between {MIN_SIZE_X}/{MIN_SIZE_Y} or {MAX_SIZE_X}/{MIN_SIZE_Y} where value = X = Y"
+                except ValueError:
+                    return "     >Error Something go wrong"
+            case "gamemode":
+                try: 
+                    if value.isdigit():
+                        index = int(value)
+                        if 0 <= index < len(AVIABLE_GAMEMODES):
+                            game.gamemode = AVIABLE_GAMEMODES[index]
+                            return f"     >Gamemode Change to {AVIABLE_GAMEMODES[index]}" 
+                        else:
+                            return f"     >Invalid value, need from 0 to {len(AVIABLE_GAMEMODES)}"
+                    elif value in AVIABLE_GAMEMODES:
+                        game.gamemode = value
+                        return f"     >Gamemode Change to {value}" 
+                    else:
+                        return  f"     >Error 404 Gamemode not found" 
+                except ValueError:
+                    return "     >Error Something go wrong"
+            
+            case _:
+                    return f"     >Invalid option {option}. Avilable options"
+
 
 
 class SelectCommand(Command):
@@ -291,32 +372,6 @@ class BuildCommand(Command):
         
         text += "No Building Kit"
         return text
-
-
-
-    
-
-
-
-
-
-
-class SizeCommand(Command):
-    def __init__(self):
-        super().__init__()
-        self.description = f"/size - Min {MIN_SIZE_X}/{MIN_SIZE_Y} | Max {MAX_SIZE_X}/{MAX_SIZE_Y}"
-
-    def execute(self, arg):
-        text = "     >"
-
-        if arg.selected_figure == None:
-            text += "Please select figure first"
-            return text
-        
-        figure = arg.selected_figure
-        text += f"{figure.team} {figure.name}, HP = {figure.health}, Pos = {figure.pos[0]}/{figure.pos[1]}"
-        return text
-
 
 
 class TestCommand(Command):
