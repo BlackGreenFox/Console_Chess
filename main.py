@@ -203,68 +203,71 @@ class Game:
             self.text_print += f"Unknown command: {command_key}"
 
         
-            
-  
-    def draw_board(self):
-        cord_y = "ABCDEFGHIJKLMNOP"
-        # ------------- 
-        border_str_y = " "
-        for i in range(self.board_size_y):
-                border_str_y += "       "
-                border_str_y += cord_y[i]
-        print(border_str_y)
-        # ------------- 
+    def generate_column_labels(self):
+        labels = []
+        size = len(ALPHABET)
 
-         
+        for length in range(1, 4):  # Довжина від A до ZZZ
+            for i in range(size ** length):
+                label = ""
+                temp = i
+                for _ in range(length):
+                    label = ALPHABET[temp % size] + label
+                    temp //= size
+                labels.append(label)
+                if len(labels) >= self.board_size_y:
+                    return labels
+        return labels     
+  
+
+    def draw_board(self):
+        cord_y = self.generate_column_labels()
+
+        max_digits = len(str(self.board_size_x))
+
+        border_str_y = " " + " " * (max_digits + 2)
+        for label in cord_y:
+            label_length = len(label)
+            if label_length == 1:
+                padding_left = "   "
+                padding_right = "    "
+            elif label_length == 2:
+                padding_left = "   "
+                padding_right = "   "
+            else:
+                padding_left = "  "
+                padding_right = "   "
+            border_str_y += f"{padding_left}{label}{padding_right}"
+        print(border_str_y)
+
         for x in range(self.board_size_x):
-            # ------------- 
-            border_str_y2 = "    "
-            for _ in range(self.board_size_y):
-                border_str_y2 += " "
-                border_str_y2 += "-------"
+            border_str_y2 = " " + " " * (max_digits + 2) + "------- " * self.board_size_y
             print(border_str_y2)
-           # ------------- 
+
             for row in range(3):
-                row_str = ""
-                if self.board_size_x - x > 9:
-                    row_str = " {} | ".format(self.board_size_x - x) if row == 1 else "    | "
+                row_label = str(self.board_size_x - x).rjust(max_digits)
+                if row == 1:
+                    row_str = f" {row_label} | "
                 else:
-                    row_str = "  {} | ".format(self.board_size_x - x) if row == 1 else "    | "
-                
+                    row_str = " " + " " * max_digits + " | "
+
                 for y in range(self.board_size_y):
                     figure = self.board[x][y]
                     if figure is None:
-                        if (x + y) % 2 == 0:
-                            cell = "     "
-                        else:
-                            cell = ". . ."
+                        cell = "     " if (x + y) % 2 == 0 else ". . ."
                     else:
-                        if hasattr(figure, 'health') and figure.health == 1 and figure.name != "King":
-                            cell = self.colorize_figure(figure.icon[row])
-                        else:
-                            cell = figure.icon[row]
+                        cell = figure.icon[row]
                     row_str += f"{cell} | "
+
                 if row == 1:
-                    row_str += f"{self.board_size_x - x}"
+                    row_str += f"{row_label}"
                 print(row_str)
-        
-        
-        # ------------- 
-        border_str_y2 = "    "
-        for _ in range(self.board_size_y):
-            border_str_y2 += " "
-            border_str_y2 += "-------"
+
         print(border_str_y2)
-        # ------------- 
-        # ------------- 
-        border_str_y = " "
-        for i in range(self.board_size_y):
-                border_str_y += "       "
-                border_str_y += cord_y[i]
         print(border_str_y)
-        # ------------- 
+
         
-        
+
     def draw_menu(self):
         print('\n\n')
         print('                88                                          ')
@@ -310,15 +313,16 @@ class Game:
 
 
     def set_console_style(self):
-        # Обчислюємо розмір вікна та буфер
-        window_size_x = min(self.board_size_x, 12)
+        window_size_x = min(self.board_size_x, 10)
         window_size_y = min(self.board_size_y, 12)
 
-        # Розрахунок для вікна консолі
+        x_lenght_label = len(str(self.board_size_x))
         cols = 8 * window_size_y + 9
-        lines = 5 * window_size_x
+        lines = 3 * window_size_x + window_size_x + 12
 
-        # Встановлюємо розмір вікна
+        if x_lenght_label >= 2:
+            cols = 8 * window_size_y + 9 + int(x_lenght_label * 1.5)
+
         os.system(f'mode con: cols={cols} lines={lines}')
 
         hwnd = ctypes.windll.kernel32.GetConsoleWindow()
@@ -326,22 +330,20 @@ class Game:
             GWL_STYLE = -16
             current_style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_STYLE)
 
-            # Забезпечуємо фіксований розмір вікна
             new_style = current_style & ~0x00040000
             ctypes.windll.user32.SetWindowLongW(hwnd, GWL_STYLE, new_style)
 
-            # Встановлюємо положення та розмір буфера
             ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0002 | 0x0001)
 
-            # Налаштування буфера для консолі
             handle = ctypes.windll.kernel32.GetStdHandle(-11)
             buffer_info = ctypes.create_string_buffer(22)
 
-            # Встановлюємо розмір буфера
-            buffer_cols = 8 * self.board_size_y + 9
-            buffer_lines = 5 * self.board_size_x
+            if x_lenght_label >= 2:
+                buffer_cols = 8 * self.board_size_y + 9 + int(x_lenght_label * 1.5)
+            else:
+                buffer_cols = 8 * self.board_size_y + 9
+            buffer_lines = 3 * self.board_size_x + self.board_size_x + 12
 
-            # Застосовуємо буфер розміру
             ctypes.windll.kernel32.SetConsoleScreenBufferSize(handle, ctypes.wintypes._COORD(buffer_cols, buffer_lines))
 
 
