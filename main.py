@@ -11,7 +11,7 @@ class Game:
         self.buildings = AVIABLE_BUILDINGS
         self.board_size_x = SIZE_X
         self.board_size_y = SIZE_Y
-        self.gamemode = AVIABLE_GAMEMODES[1]
+        self.gamemode = AVIABLE_GAMEMODES[2]
 
         self.board = None
         self.game_process = False
@@ -39,13 +39,56 @@ class Game:
                 ("Queen", [(0, 3, "White"), (7, 3, "Black")]),
                 ("King", [(0, 4, "White"), (7, 4, "Black")])
             ],
+            "Infinity": [
+                ("Pawn", [(1, i, "White", 3) for i in range(self.board_size_y)] +
+                         [(self.board_size_x - 2, i, "Black", 3) for i in range(self.board_size_y)]),
+                ("Rook", [(0, 0, "White", 10), (0, self.board_size_y - 1, "White", 10),
+                          (self.board_size_x - 1, 0, "Black", 10), (self.board_size_x - 1, self.board_size_y - 1, "Black", 10)]),
+                ("Knight", [(0, 1, "White", 5), (0, self.board_size_y - 2, "White", 5),
+                            (self.board_size_x - 1, 1, "Black", 5), (self.board_size_x - 1, self.board_size_y - 2, "Black", 5)]),
+                ("Bishop", [(0, 2, "White", 4), (0, self.board_size_y - 3, "White", 4),
+                            (self.board_size_x - 1, 2, "Black", 4), (self.board_size_x - 1, self.board_size_y - 3, "Black", 4)]),
+                ("Queen", [
+                    (0, self.board_size_y // 2 - 1, "White", 2),
+                    (self.board_size_x - 1, self.board_size_y // 2 - 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 2)
+                ]),
+                ("King", [
+                    (0, self.board_size_y // 2, "White", 1),
+                    (self.board_size_x - 1, self.board_size_y // 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 1)
+                ])
+            ],
             "War": [
-                ("Pawn", [(1, i, "White", 3) for i in range(8)] + [(6, i, "Black", 3) for i in range(8)]),
-                ("Rook", [(0, 0, "White", 10), (0, 7, "White", 10), (7, 0, "Black", 10), (7, 7, "Black", 10)]),
-                ("Knight", [(0, 1, "White", 5), (0, 6, "White", 5), (7, 1, "Black", 5), (7, 6, "Black", 5)]),
-                ("Bishop", [(0, 2, "White", 4), (0, 5, "White", 4), (7, 2, "Black", 4), (7, 5, "Black", 4)]),
-                ("Queen", [(0, 3, "White", 2), (7, 3, "Black", 2)]),
-                ("King", [(0, 4, "White", 1), (7, 4, "Black", 1)])
+                ("Pawn", [
+                    (1, self.board_size_y // 2 - 4 + i, "White", 3) for i in range(8)
+                ] + [
+                    (self.board_size_x - 2, self.board_size_y // 2 - 4 + i + (1 if self.board_size_y % 2 != 0 else 0), "Black", 3) for i in range(8)
+                ]),
+                ("Rook", [
+                    (0, self.board_size_y // 2 - 4, "White", 10),
+                    (0, self.board_size_y // 2 + 3, "White", 10),
+                    (self.board_size_x - 1, self.board_size_y // 2 - 4 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 10),
+                    (self.board_size_x - 1, self.board_size_y // 2 + 3 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 10)
+                ]),
+                ("Knight", [
+                    (0, self.board_size_y // 2 - 3, "White", 5),
+                    (0, self.board_size_y // 2 + 2, "White", 5),
+                    (self.board_size_x - 1, self.board_size_y // 2 - 3 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 5),
+                    (self.board_size_x - 1, self.board_size_y // 2 + 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 5)
+                ]),
+                ("Bishop", [
+                    (0, self.board_size_y // 2 - 2, "White", 4),
+                    (0, self.board_size_y // 2 + 1, "White", 4),
+                    (self.board_size_x - 1, self.board_size_y // 2 - 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 4),
+                    (self.board_size_x - 1, self.board_size_y // 2 + 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 4)
+                ]),
+                ("Queen", [
+                    (0, self.board_size_y // 2 - 1, "White", 2),
+                    (self.board_size_x - 1, self.board_size_y // 2 - 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 2)
+                ]),
+                ("King", [
+                    (0, self.board_size_y // 2, "White", 1),
+                    (self.board_size_x - 1, self.board_size_y // 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 1)
+                ])
             ]
         }
 
@@ -58,7 +101,7 @@ class Game:
                     y, x, team, health = position
                     board[y][x] = AVIABLE_FIGURES[figure](team, (y, x), figure, health)
 
-        if self.gamemode == "War":
+        if self.gamemode == "War" or self.gamemode == "Infinity":
             for x in board:
                 for y in x:
                     if y is not None:
@@ -266,18 +309,41 @@ class Game:
             self.proceess()
 
 
-
     def set_console_style(self):
-        os.system(f'mode con: cols={8*self.board_size_y+ 9} lines={5*self.board_size_x}')
+        # Обчислюємо розмір вікна та буфер
+        window_size_x = min(self.board_size_x, 12)
+        window_size_y = min(self.board_size_y, 12)
+
+        # Розрахунок для вікна консолі
+        cols = 8 * window_size_y + 9
+        lines = 5 * window_size_x
+
+        # Встановлюємо розмір вікна
+        os.system(f'mode con: cols={cols} lines={lines}')
+
         hwnd = ctypes.windll.kernel32.GetConsoleWindow()
         if hwnd != 0:
             GWL_STYLE = -16
             current_style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_STYLE)
 
+            # Забезпечуємо фіксований розмір вікна
             new_style = current_style & ~0x00040000
-
             ctypes.windll.user32.SetWindowLongW(hwnd, GWL_STYLE, new_style)
+
+            # Встановлюємо положення та розмір буфера
             ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0002 | 0x0001)
+
+            # Налаштування буфера для консолі
+            handle = ctypes.windll.kernel32.GetStdHandle(-11)
+            buffer_info = ctypes.create_string_buffer(22)
+
+            # Встановлюємо розмір буфера
+            buffer_cols = 8 * self.board_size_y + 9
+            buffer_lines = 5 * self.board_size_x
+
+            # Застосовуємо буфер розміру
+            ctypes.windll.kernel32.SetConsoleScreenBufferSize(handle, ctypes.wintypes._COORD(buffer_cols, buffer_lines))
+
 
 
 def clear():
