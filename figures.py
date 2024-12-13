@@ -17,7 +17,6 @@ class Figure:
 class Baricade(Figure):
     def __init__(self, team, pos, name, health = 1):  
         super().__init__(team, pos, name, health)  
-        
         self.icon = ["|ooo|", "|XXX|", "|XXX|"]
           
 

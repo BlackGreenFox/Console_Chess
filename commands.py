@@ -4,19 +4,20 @@ from items import *
 from settings import *
 
 
-def parse_coordinate(coordinate, board_size_x):
+def parse_cordinate(coordinate, game):
     import re
     match = re.match(r"([A-Z]+)(\d+)", coordinate.upper())
+
     if not match:
-        raise ValueError("Invalid coordinate format.")
+        raise ValueError("Invalid coordinate format")
     
     col_label, row_label = match.groups()
 
+    row = game.board_size_x - int(row_label)
+
     col = 0
     for char in col_label:
-        col = col * 26 + (ord(char) - ord('A') + 1)
-
-    row = board_size_x - int(row_label)
+        col = col * 25 + (ord(char) - ord('A') + 1)
 
     return row, col
 
@@ -176,16 +177,15 @@ class SelectCommand(Command):
         coordinate = args[0]
 
         try:
-            x, y = parse_coordinate(args[0], game.board_size_x)
+            x, y = parse_cordinate(coordinate, game)
         except ValueError:
             return "     >Wrong argument. Please provide a valid coordinate like A1."
+
 
         if x < 0 or x >= game.board_size_x or y < 0 or y >= game.board_size_y:
             return "     >Invalid coordinate. Out of board range."
 
-        if game.board[x][y] is None:
-            return f"     >No figure found at {coordinate}. Input detect {x} and {y}"
-
+        
         selected_figure = None
 
         if game.turn % 2 and game.board[x][y].team == "White":
@@ -217,9 +217,10 @@ class MoveCommand(Command):
         target = args[0]
 
         try:
-            x, y = parse_coordinate(args[0], game.board_size_x)
+            x, y = parse_cordinate(target, game)
         except ValueError:
             return "     >Wrong argument. Please provide a valid target like A1."
+
 
         if x < 0 or x >= game.board_size_x or y < 0 or y >= game.board_size_y:
             return "     >Invalid target. Out of board range."

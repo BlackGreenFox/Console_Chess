@@ -32,30 +32,34 @@ class Game:
 
         piece_placement = {
             "Classic": [
-                ("Pawn", [(1, i, "White") for i in range(8)] + [(6, i, "Black") for i in range(8)]),
-                ("Rook", [(0, 0, "White"), (0, 7, "White"), (7, 0, "Black"), (7, 7, "Black")]),
-                ("Knight", [(0, 1, "White"), (0, 6, "White"), (7, 1, "Black"), (7, 6, "Black")]),
-                ("Bishop", [(0, 2, "White"), (0, 5, "White"), (7, 2, "Black"), (7, 5, "Black")]),
-                ("Queen", [(0, 3, "White"), (7, 3, "Black")]),
-                ("King", [(0, 4, "White"), (7, 4, "Black")])
-            ],
-            "Infinity": [
-                ("Pawn", [(1, i, "White", 3) for i in range(self.board_size_y)] +
-                         [(self.board_size_x - 2, i, "Black", 3) for i in range(self.board_size_y)]),
-                ("Rook", [(0, 0, "White", 10), (0, self.board_size_y - 1, "White", 10),
-                          (self.board_size_x - 1, 0, "Black", 10), (self.board_size_x - 1, self.board_size_y - 1, "Black", 10)]),
-                ("Knight", [(0, 1, "White", 5), (0, self.board_size_y - 2, "White", 5),
-                            (self.board_size_x - 1, 1, "Black", 5), (self.board_size_x - 1, self.board_size_y - 2, "Black", 5)]),
-                ("Bishop", [(0, 2, "White", 4), (0, self.board_size_y - 3, "White", 4),
-                            (self.board_size_x - 1, 2, "Black", 4), (self.board_size_x - 1, self.board_size_y - 3, "Black", 4)]),
-                ("Queen", [
-                    (0, self.board_size_y // 2 - 1, "White", 2),
-                    (self.board_size_x - 1, self.board_size_y // 2 - 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 2)
+                ("Pawn", [
+                    (1, self.board_size_y // 2 - 4 + i, "White", 3) for i in range(8)
+                ] + [
+                    (self.board_size_x - 2, self.board_size_y // 2 - 4 + i + (1 if self.board_size_y % 2 != 0 else 0), "Black", 3) for i in range(8)
                 ]),
+                ("Rook", [
+                    (0, self.board_size_y // 2 - 4, "White", 10), (0, self.board_size_y // 2 + 3, "White", 10), 
+                    (self.board_size_x - 1, self.board_size_y // 2 - 4 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 10), 
+                    (self.board_size_x - 1, self.board_size_y // 2 + 3 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 10)
+                ]),
+                ("Knight", [
+                    (0, self.board_size_y // 2 - 3, "White", 5), (0, self.board_size_y // 2 + 2, "White", 5),
+                    (self.board_size_x - 1, self.board_size_y // 2 - 3 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 5),
+                    (self.board_size_x - 1, self.board_size_y // 2 + 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 5)
+                    ]),
+                ("Bishop", [
+                    (0, self.board_size_y // 2 - 2, "White", 4), (0, self.board_size_y // 2 + 1, "White", 4), 
+                    (self.board_size_x - 1, self.board_size_y // 2 - 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 4), 
+                    (self.board_size_x - 1, self.board_size_y // 2 + 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 4)
+                    ]),
+                ("Queen", [
+                    (0, self.board_size_y // 2 - 1, "White", 2), 
+                    (self.board_size_x - 1, self.board_size_y // 2 - 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 2)
+                    ]),
                 ("King", [
-                    (0, self.board_size_y // 2, "White", 1),
+                    (0,  self.board_size_y // 2, "White", 1), 
                     (self.board_size_x - 1, self.board_size_y // 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 1)
-                ])
+                    ])
             ],
             "War": [
                 ("Pawn", [
@@ -64,32 +68,59 @@ class Game:
                     (self.board_size_x - 2, self.board_size_y // 2 - 4 + i + (1 if self.board_size_y % 2 != 0 else 0), "Black", 3) for i in range(8)
                 ]),
                 ("Rook", [
-                    (0, self.board_size_y // 2 - 4, "White", 10),
-                    (0, self.board_size_y // 2 + 3, "White", 10),
-                    (self.board_size_x - 1, self.board_size_y // 2 - 4 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 10),
+                    (0, self.board_size_y // 2 - 4, "White", 10), (0, self.board_size_y // 2 + 3, "White", 10), 
+                    (self.board_size_x - 1, self.board_size_y // 2 - 4 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 10), 
                     (self.board_size_x - 1, self.board_size_y // 2 + 3 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 10)
                 ]),
                 ("Knight", [
-                    (0, self.board_size_y // 2 - 3, "White", 5),
-                    (0, self.board_size_y // 2 + 2, "White", 5),
+                    (0, self.board_size_y // 2 - 3, "White", 5), (0, self.board_size_y // 2 + 2, "White", 5),
                     (self.board_size_x - 1, self.board_size_y // 2 - 3 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 5),
                     (self.board_size_x - 1, self.board_size_y // 2 + 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 5)
-                ]),
+                    ]),
                 ("Bishop", [
-                    (0, self.board_size_y // 2 - 2, "White", 4),
-                    (0, self.board_size_y // 2 + 1, "White", 4),
-                    (self.board_size_x - 1, self.board_size_y // 2 - 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 4),
+                    (0, self.board_size_y // 2 - 2, "White", 4), (0, self.board_size_y // 2 + 1, "White", 4), 
+                    (self.board_size_x - 1, self.board_size_y // 2 - 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 4), 
                     (self.board_size_x - 1, self.board_size_y // 2 + 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 4)
-                ]),
+                    ]),
                 ("Queen", [
-                    (0, self.board_size_y // 2 - 1, "White", 2),
+                    (0, self.board_size_y // 2 - 1, "White", 2), 
                     (self.board_size_x - 1, self.board_size_y // 2 - 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 2)
-                ]),
+                    ]),
                 ("King", [
-                    (0, self.board_size_y // 2, "White", 1),
+                    (0,  self.board_size_y // 2, "White", 1), 
                     (self.board_size_x - 1, self.board_size_y // 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 1)
-                ])
-            ]
+                    ])
+            ],
+            "Infinity": [
+                ("Pawn", [
+                    (1, i, "White", 3) for i in range(self.board_size_y)
+                ] + [
+                    (self.board_size_x - 2, i, "Black", 3) for i in range(self.board_size_y)
+                ]),
+                ("Rook", [
+                    (0, self.board_size_y // 2 - 4, "White", 10), (0, self.board_size_y // 2 + 3, "White", 10), 
+                    (self.board_size_x - 1, self.board_size_y // 2 - 4 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 10), 
+                    (self.board_size_x - 1, self.board_size_y // 2 + 3 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 10)
+                ]),
+                ("Knight", [
+                    (0, self.board_size_y // 2 - 3, "White", 5), (0, self.board_size_y // 2 + 2, "White", 5),
+                    (self.board_size_x - 1, self.board_size_y // 2 - 3 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 5),
+                    (self.board_size_x - 1, self.board_size_y // 2 + 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 5)
+                    ]),
+                ("Bishop", [
+                    (0, self.board_size_y // 2 - 2, "White", 4), (0, self.board_size_y // 2 + 1, "White", 4), 
+                    (self.board_size_x - 1, self.board_size_y // 2 - 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 4), 
+                    (self.board_size_x - 1, self.board_size_y // 2 + 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 4)
+                    ]),
+                ("Queen", [
+                    (0, self.board_size_y // 2 - 1, "White", 2), 
+                    (self.board_size_x - 1, self.board_size_y // 2 - 1 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 2)
+                    ]),
+                ("King", [
+                    (0,  self.board_size_y // 2, "White", 1), 
+                    (self.board_size_x - 1, self.board_size_y // 2 + (1 if self.board_size_y % 2 != 0 else 0), "Black", 1)
+                    ])
+            ],
         }
 
         for figure, positions in piece_placement.get(self.gamemode, []):
@@ -101,7 +132,7 @@ class Game:
                     y, x, team, health = position
                     board[y][x] = AVIABLE_FIGURES[figure](team, (y, x), figure, health)
 
-        if self.gamemode == "War" or self.gamemode == "Infinity":
+        if self.gamemode != "Classic":
             for x in board:
                 for y in x:
                     if y is not None:
@@ -203,71 +234,92 @@ class Game:
             self.text_print += f"Unknown command: {command_key}"
 
         
-    def generate_column_labels(self):
+            
+    def generate_colums_label(self):
         labels = []
         size = len(ALPHABET)
 
-        for length in range(1, 4):  # Довжина від A до ZZZ
-            for i in range(size ** length):
+        for lenght in range(1,4):
+            for i in range(size ** lenght):
                 label = ""
                 temp = i
-                for _ in range(length):
+
+                for _ in range(lenght):
                     label = ALPHABET[temp % size] + label
                     temp //= size
+
                 labels.append(label)
-                if len(labels) >= self.board_size_y:
+                if len(labels)>= self.board_size_y:
                     return labels
-        return labels     
-  
+                
+        return labels
+
 
     def draw_board(self):
-        cord_y = self.generate_column_labels()
-
-        max_digits = len(str(self.board_size_x))
-
-        border_str_y = " " + " " * (max_digits + 2)
-        for label in cord_y:
-            label_length = len(label)
-            if label_length == 1:
+        label_y = self.generate_colums_label()
+        label_x_lenght = len(str(self.board_size_x))
+        border_str_y = " " + " " * (label_x_lenght + 2)
+       
+        # ------------- 
+        for label in label_y:
+            label_y_lenght = len(label)
+            if label_y_lenght == 1:
                 padding_left = "   "
                 padding_right = "    "
-            elif label_length == 2:
+            elif label_y_lenght == 2:
                 padding_left = "   "
                 padding_right = "   "
             else:
                 padding_left = "  "
                 padding_right = "   "
             border_str_y += f"{padding_left}{label}{padding_right}"
+
+
         print(border_str_y)
+        # ------------- 
 
+         
         for x in range(self.board_size_x):
-            border_str_y2 = " " + " " * (max_digits + 2) + "------- " * self.board_size_y
+            # ------------- 
+            border_str_y2 =  " " + " " * (label_x_lenght + 2) + "------- " * self.board_size_y
+ 
+            
             print(border_str_y2)
-
+           # ------------- 
             for row in range(3):
-                row_label = str(self.board_size_x - x).rjust(max_digits)
+                row_label = str(self.board_size_x - x).rjust(label_x_lenght)
                 if row == 1:
                     row_str = f" {row_label} | "
                 else:
-                    row_str = " " + " " * max_digits + " | "
-
+                    row_str = " " + " " * label_x_lenght + " | "
+                
                 for y in range(self.board_size_y):
                     figure = self.board[x][y]
                     if figure is None:
-                        cell = "     " if (x + y) % 2 == 0 else ". . ."
+                        if (x + y) % 2 == 0:
+                            cell = "     "
+                        else:
+                            cell = ". . ."
                     else:
-                        cell = figure.icon[row]
+                        if hasattr(figure, 'health') and figure.health == 1 and figure.name != "King":
+                            cell = self.colorize_figure(figure.icon[row])
+                        else:
+                            cell = figure.icon[row]
+
                     row_str += f"{cell} | "
 
                 if row == 1:
                     row_str += f"{row_label}"
-                print(row_str)
 
+                print(row_str)
+        
+        
+        # ------------- 
         print(border_str_y2)
         print(border_str_y)
-
+        # ------------- 
         
-
+        
     def draw_menu(self):
         print('\n\n')
         print('                88                                          ')
@@ -312,40 +364,33 @@ class Game:
             self.proceess()
 
 
+
     def set_console_style(self):
-        window_size_x = min(self.board_size_x, 10)
+        window_size_x = min(self.board_size_x, 12)
         window_size_y = min(self.board_size_y, 12)
 
-        x_lenght_label = len(str(self.board_size_x))
-        cols = 8 * window_size_y + 9
+        label_x_lenght = len(str(self.board_size_x))
+
+        cols = (8 * window_size_y + 9) + int(label_x_lenght* 1.5) if label_x_lenght >= 2 else (8 * window_size_y + 9) 
         lines = 3 * window_size_x + window_size_x + 12
 
-        if x_lenght_label >= 2:
-            cols = 8 * window_size_y + 9 + int(x_lenght_label * 1.5)
-
         os.system(f'mode con: cols={cols} lines={lines}')
-
         hwnd = ctypes.windll.kernel32.GetConsoleWindow()
         if hwnd != 0:
             GWL_STYLE = -16
             current_style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_STYLE)
 
             new_style = current_style & ~0x00040000
-            ctypes.windll.user32.SetWindowLongW(hwnd, GWL_STYLE, new_style)
 
+            ctypes.windll.user32.SetWindowLongW(hwnd, GWL_STYLE, new_style)
             ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0002 | 0x0001)
 
             handle = ctypes.windll.kernel32.GetStdHandle(-11)
             buffer_info = ctypes.create_string_buffer(22)
-
-            if x_lenght_label >= 2:
-                buffer_cols = 8 * self.board_size_y + 9 + int(x_lenght_label * 1.5)
-            else:
-                buffer_cols = 8 * self.board_size_y + 9
+            buffer_cols = (8 * self.board_size_y + 9) + int(label_x_lenght* 1.5) if label_x_lenght >= 2 else (8 * self.board_size_y + 9) 
             buffer_lines = 3 * self.board_size_x + self.board_size_x + 12
-
+            
             ctypes.windll.kernel32.SetConsoleScreenBufferSize(handle, ctypes.wintypes._COORD(buffer_cols, buffer_lines))
-
 
 
 def clear():
