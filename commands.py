@@ -17,9 +17,21 @@ def parse_cordinate(coordinate, game):
 
     col = 0
     for char in col_label:
-        col = col * 25 + (ord(char) - ord('A') + 1)
+        col = col * 26 + (ord(char) - ord('A') + 1)
 
-    return row, col
+    return row, col-1
+
+def format_coordinate(x, y, game):
+    col_label = ""
+    col = y
+    while col > 0:
+        col -= 1
+        col_label = chr(ord('A') + (col % 25)) + col_label
+        col //= 26
+
+    row_label = str(game.board_size_x - x)
+
+    return f"{col_label}{row_label}"
 
 class Command:
     def __init__(self):
@@ -109,7 +121,7 @@ class SettingsCommand(Command):
         option, value = args[0].lower(), args[1]
 
         match option:
-            case "size_x"| "x":
+            case "size_x" | "x":
                 try:
                     size = int(value)
                     if MIN_SIZE_X <= size <= MAX_SIZE_X:
@@ -188,15 +200,15 @@ class SelectCommand(Command):
         
         selected_figure = None
 
+        if game.board[x][y] is None:
+            return f"     >No figure found at {coordinate}."
+        
         if game.turn % 2 and game.board[x][y].team == "White":
             selected_figure = game.board[x][y] 
         elif not game.turn % 2 and game.board[x][y].team == "Black":
             selected_figure = game.board[x][y] 
         else:
             return f"     >No... is {"White" if game.turn % 2 else "Black"} turn now."
-
-        if selected_figure is None:
-            return f"     >No figure found at {coordinate}."
 
         game.selected_figure = selected_figure
         return f"     >Figure selected: {selected_figure.name} at {coordinate}"
@@ -274,7 +286,7 @@ class InfoCommand(Command):
             return f"     >Please select figure first"
         
         figure = game.selected_figure
-        return f"     >{figure.team} {figure.name}, HP = {figure.health}, Pos = {figure.pos[0]}/{figure.pos[1]}"
+        return f"     >{figure.team} {figure.name}, HP = {figure.health}, Pos = {format_coordinate(figure.pos[0], figure.pos[1], game)} or {figure.pos[0]}/{figure.pos[1]}"
  
     
 

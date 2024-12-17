@@ -191,10 +191,86 @@ class Game:
             return True
         return False
 
+    def is_in_check(self, king_team):
+        """
+        Перевіряє, чи знаходиться король у шаху
+        """
+        king_figure = self.check_figure(king_team, King)
+
+        
+
+        king_pos = king_figure.pos
+
+        # Перевірити можливі атаки суперника
+        opponent_team = "Black" if king_team == "White" else "White"
+        for x in range(self.board_size_x):
+            for y in range(self.board_size_y):
+                figure = self.board[x][y]
+                if figure and figure.team == opponent_team:
+                    possible_moves = figure.moves(self)
+                    for move in possible_moves:
+                        if move[0] == king_pos[0] and move[1] == king_pos[1]:
+                            print(f"       Checks in {move[0]} {move[1]}")
+                            input()
+                            return True  # Король під шахом
+ 
+        return False
+
+
+
+    def is_checkmate(self, king_team):
+        """
+        Перевіряє, чи це мат для короля заданої команди
+        """
+        if not self.is_in_check(king_team):
+            return False  # Король не під шахом
+    
+        # Перевірити всі можливі ходи гравця
+        for x in range(self.board_size_x):
+            for y in range(self.board_size_y):
+                figure = self.board[x][y]
+                if figure and figure.team == king_team:
+                    possible_moves = figure.moves(self)
+                    for move in possible_moves:
+                        original_pos = figure.pos
+                        target_pos = move
+                        target_figure = self.board[target_pos[0]][target_pos[1]]
+    
+                        # Спроба ходу
+                        self.board[original_pos[0]][original_pos[1]] = None
+                        self.board[target_pos[0]][target_pos[1]] = figure
+                        figure.pos = target_pos
+    
+                        # Перевірка чи шах залишився
+                        if not self.is_in_check(king_team):
+                            # Відновити попереднє положення
+                            self.board[original_pos[0]][original_pos[1]] = figure
+                            self.board[target_pos[0]][target_pos[1]] = target_figure
+                            figure.pos = original_pos
+                            return False  # Є хід, який може врятувати від мату
+    
+                        # Відновлення після перевірки
+                        self.board[original_pos[0]][original_pos[1]] = figure
+                        self.board[target_pos[0]][target_pos[1]] = target_figure
+                        figure.pos = original_pos
+    
+        return True  # Мат
+
+
     def end_turn(self):
-        #self.turn += 1
+        self.turn += 1
         #self.selected_figure = None
-        pass
+        # Перевірка після кожного ходу
+        # Додається після виконання ходу в основному циклі гри
+        current_team = "White" if self.turn % 2 == 1 else "Black"
+
+        if self.is_in_check(current_team):
+            self.text_print += f"\nCheck! {current_team} King is in danger.\n"
+
+        # if self.is_checkmate(current_team):
+        #     self.text_print += f"\nCheckmate! {current_team} loses.\n"
+        #     self.game_process = False
+
 
     def event(self):
         str_command = input("     /").strip()

@@ -50,7 +50,7 @@ class Pawn(Figure):
             x = pos_x + dx
             y = pos_y + dy
 
-            if 0 <= x < game.board_size_x and 0 <= y + game.board_size_y:
+            if 0 <= x < game.board_size_x and 0 <= y < game.board_size_y:
                 if game.board[x][y] is None:
                     if dy == 0:
                         possible_moves.append([x,y])
@@ -120,7 +120,7 @@ class Knight(Figure):
             x = pos_x + dx
             y = pos_y + dy
 
-            if 0 <= x < game.board_size_x and 0 <= y + game.board_size_y:
+            if 0 <= x < game.board_size_x and 0 <= y < game.board_size_y:
                 if game.board[x][y] is None:
                     possible_moves.append([x,y])
                 elif game.board[x][y].team != self.team:
