@@ -64,7 +64,6 @@ class StartCommand(Command):
         else:
             return "     >I abort all operations"
 
-    
 
 class HelpCommand(Command):
     def __init__(self):
@@ -218,6 +217,7 @@ class SelectCommand(Command):
         return f"     >Figure selected: {selected_figure.name} at {coordinate}"
 
 
+
 class MoveCommand(Command):
     def __init__(self):
         super().__init__()
@@ -277,6 +277,7 @@ class MoveCommand(Command):
         return f"     >Cannot move to {target}. Available moves: {available_moves}"
 
 
+
 class InfoCommand(Command):
     def __init__(self):
         super().__init__()
@@ -293,6 +294,7 @@ class InfoCommand(Command):
         return f"     >{figure.team} {figure.name}, HP = {figure.health}, Pos = {format_cordinate(figure.pos[0], figure.pos[1], game)} or {figure.pos[0]}/{figure.pos[1]}"
  
     
+
 
 class InventoryCommand(Command):
     def __init__(self):
@@ -421,6 +423,97 @@ class TestCommand(Command):
         return text
 
 
+
+class ExplodeCommand(Command):
+    def __inif__(self):
+        super().__init__()
+        self.description = "/explode <cordinatre> - Summon Bomb"
+
+    def execute(self, game, *args):
+        if not game.game_process:
+            return "     >Opppsi.. Game not start yet"
+
+        if not args:
+            return "     >No target provided. Please provide a valid target."
+
+        target = args[0]
+
+        try:
+            x, y = parse_cordinate(target, game)
+        except ValueError:
+            return "     >Wrong argument. Please provide a valid target like A1."
+
+
+        if x < 0 or x >= game.board_size_x or y < 0 or y >= game.board_size_y:
+            return "     >Invalid target. Out of board range."
+
+
+        animation_frames = {
+            (x, y) : [
+                ["     ", "  X  ", "     "],
+                ["  X  ", " XXX ", "  X  "],
+                [" XXX ", " XXX ", " XXX "],
+                [" XXX ", "XXXXX", " XXX "],
+            ],
+            (x-1, y) : [
+                ["     ", "     ", "     "],
+                ["     ", "     ", "     "],
+                ["     ", "     ", "  X  "],
+                ["  X  ", " XXX ", " XXX "],
+            ],
+            (x+1, y) : [
+                ["     ", "     ", "     "],
+                ["     ", "     ", "     "],
+                ["  X  ", "     ", "     "],
+                [" XXX ", " XXX ", "  X  "],
+            ],
+            (x, y-1) : [
+                ["     ", "     ", "     "],
+                ["     ", "     ", "     "],
+                ["   X ", "  XX ", "   X "],
+                ["  XXX", " XXXX", "  XXX"],
+            ],
+            (x, y+1) : [
+                ["     ", "     ", "     "],
+                ["     ", "     ", "     "],
+                [" X   ", " XX  ", " X   "],
+                ["XXX  ", "XXXX ", "XXX  "],
+            ],
+            (x-1, y+1) : [
+                ["     ", "     ", "     "],
+                ["     ", "     ", "     "],
+                ["     ", "     ", "X    "],
+                ["     ", "X    ", "XX   "],
+            ],
+            (x+1, y+1) : [
+                ["     ", "     ", "     "],
+                ["     ", "     ", "     "],
+                ["X    ", "     ", "     "],
+                ["XX   ", "X    ", "     "],
+            ],
+            (x-1, y-1) : [
+                ["     ", "     ", "     "],
+                ["     ", "     ", "     "],
+                ["     ", "     ", "    X"],
+                ["     ", "    X", "   XX"],
+            ],
+            (x+1, y-1) : [
+                ["     ", "     ", "     "],
+                ["     ", "     ", "     "],
+                ["    X", "     ", "     "],
+                ["   XX", "    X", "     "],
+            ],
+        }
+
+        eplosion_animation = {
+            "frames" : animation_frames,
+            "current_frame" : 0,
+            "color" : "yellow"
+        }
+
+        game.processes[(x,y)] = eplosion_animation
+
+        return f"     >Yes Riko KABOOOMMMM"
 
 
 

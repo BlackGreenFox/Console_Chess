@@ -19,6 +19,10 @@ class Baricade(Figure):
         super().__init__(team, pos, name, health)  
         self.icon = ["|ooo|", "|XXX|", "|XXX|"]
           
+class Explosive(Figure):
+    def __init__(self, team, pos, name, health = 0):  
+        super().__init__(team, pos, name, health)
+        self.icon = ["  X  ", " XXX ", "XXXXX"]
 
 
 class Pawn(Figure):

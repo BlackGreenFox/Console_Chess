@@ -22,7 +22,7 @@ class Game:
         self.text_print = ""
 
         # For Prikols
-        self.processes = []
+        self.processes = {}
 
         self.set_console_style()
 
@@ -181,6 +181,7 @@ class Game:
                 result += char
         return result
 
+
     def destroy_figure(self, arg):
         if self.board[arg[0]][arg[1]].health <= 0:
             if self.board[arg[0]][arg[1]].name == 'King':
@@ -189,6 +190,7 @@ class Game:
             self.board[arg[0]][arg[1]] = None
             return True
         return False
+
 
     def is_check(self, king_team):
         king_figure = self.check_figure(king_team, King)
@@ -250,7 +252,6 @@ class Game:
 
 
     def start_turn(self):
-
         king_team= "White" if self.turn % 2 == 1 else "Black"
         winner_team = "White" if king_team == "Black" else "Black"
 
@@ -261,6 +262,7 @@ class Game:
 
     def end_turn(self):
         self.turn += 1
+        self.proceess()
         #self.selected_figure = None
         
 
@@ -406,6 +408,7 @@ class Game:
 
 
     def draw(self):
+        clear()
         if self.game_process:
             self.start_turn()
             self.draw_board()
@@ -418,19 +421,114 @@ class Game:
 
 
     def proceess(self):
-        pass
-        # chess_event = []
+        if not self.processes:
+            return
 
-        # for event in chess_event:
-        #     time.sleep(0.1) 
+        to_remove = []
+
+        while self.processes:
+            affected_cells = {}
+
+            for key, animation in list(self.processes.items()):
+                current_frame = animation["current_frame"]
+
+                for (x,y), frames in animation["frames"].items():
+                    if current_frame < len(frames):
+                        affected_cells[(x, y)] = frames[current_frame]
+                    else:
+                        affected_cells[(x, y)] = ["     "] *3
+
+                animation["current_frame"] += 1
+
+                if animation["current_frame"] >= max(len(frames) for frames in animation["frames"].values()):
+                    to_remove.append(key)
+
+
+            for key in to_remove:
+                del self.processes[key]
+            to_remove.clear()
+
+            clear()
+            self.draw_anim_board(affected_cells, animation["color"])
+            time.sleep(0.7)
+
+    
+    def draw_anim_board(self, anim_cells, color):
+        label_y = self.generate_colums_label()
+        label_x_lenght = len(str(self.board_size_x))
+        border_str_y = " " + " " * (label_x_lenght + 2)
+       
+        # ------------- 
+        for label in label_y:
+            label_y_lenght = len(label)
+            if label_y_lenght == 1:
+                padding_left = "   "
+                padding_right = "    "
+            elif label_y_lenght == 2:
+                padding_left = "   "
+                padding_right = "   "
+            else:
+                padding_left = "  "
+                padding_right = "   "
+            border_str_y += f"{padding_left}{label}{padding_right}"
+
+
+        print(border_str_y)
+        # ------------- 
+
+         
+        for x in range(self.board_size_x):
+            # ------------- 
+            border_str_y2 =  " " + " " * (label_x_lenght + 2) + "------- " * self.board_size_y
+ 
+            
+            print(border_str_y2)
+           # ------------- 
+            for row in range(3):
+                row_label = str(self.board_size_x - x).rjust(label_x_lenght)
+                if row == 1:
+                    row_str = f" {row_label} | "
+                else:
+                    row_str = " " + " " * label_x_lenght + " | "
+                
+                for y in range(self.board_size_y):
+
+                    if (x, y) in anim_cells and anim_cells[(x,y)][row] != "     ":
+                        cell = anim_cells[(x,y)][row]
+                        row_str += f"{getattr(Fore, color.upper())}{cell}{Style.RESET_ALL} | "
+                    else:
+                        figure = self.board[x][y]
+                        if figure is None:
+                            if (x + y) % 2 == 0:
+                                cell = "     "
+                            else:
+                                cell = ". . ."
+                        else:
+                            if hasattr(figure, 'health') and figure.health == 1 and figure.name != "King":
+                                cell = self.colorize_figure(figure.icon[row])
+                            else:
+                                cell = figure.icon[row]
+
+                        row_str += f"{cell} | "
+
+                if row == 1:
+                    row_str += f"{row_label}"
+
+                print(row_str)
+        
+        
+        # ------------- 
+        print(border_str_y2)
+        print(border_str_y)
+        # ------------- 
+
 
 
     def run(self):
         while True:
-            clear()
             self.draw()
             self.event()
-            self.proceess()
+
 
 
 
@@ -463,12 +561,10 @@ class Game:
 
 
 def clear():
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 if __name__ == "__main__":
-    
-     
     init(autoreset=True)
     game = Game()
     game.run()

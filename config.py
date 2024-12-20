@@ -16,6 +16,7 @@ AVIABLE_COMMANDS = {
     "use" : UseCommand(),
     "look" : LookCommand(),
     "test" : TestCommand(),
+    "explode": ExplodeCommand(),
 }
 
 AVIABLE_BUILDINGS = {
